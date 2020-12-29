@@ -1,0 +1,100 @@
+@charset "utf-8";
+/* CSS Document */
+	/*@import url(https://fonts.googleapis.com/css?family=Gabriela|Dosis:200);*/
+@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
+body {
+  font-smoothing: antialiased;
+  margin: 0; 
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+
+body::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    border-radius: 10px;
+    background: #eee;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: #888;
+}
+::-webkit-scrollbar-thumb:window-inactive {
+    background: rgba(100,100,100,0.4); 
+}
+.name{
+	letter-spacing: 4px;
+  font-weight: normal;
+  font-size: 75px;
+  font-family: 'Great Vibes', cursive;
+  color:#FFF;	
+}
+@media screen and (max-width: 600px) {
+  .name{
+    font-size: 55px;
+  }
+}
+
+.overlay {
+  pointer-events: none;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  left: 0;
+  top: 0;
+}
+
+.containerbg {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+}
+
+
+.controlsbg {
+  font-smoothing: subpixel-antialiased;
+  position: absolute;
+  right: 20px;
+  top: 0;
+  
+}
+
+
+.hide {
+  opacity: 0;
+}
+svg {
+  height: 80vmin;
+  left: calc(50% - 50vmin);
+  position: absolute;
+  width: 100vmin;
+  display:block;	  
+}
+  .bgma {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(
+    to bottom right,  
+    #2C3E50, #FD746C, 
+    /*#FF8235, #ffff1c, 
+    #92FE9D,*/ #00C9FF, 
+    #a044ff, #e73827);
+  background-repeat: no-repeat;
+  background-size: 1000% 1000%;
+  animation: gradient 240s ease infinite;
+}
+@keyframes gradient { 
+  0%{background-position:0% 0%}
+  50%{background-position:100% 100%}
+  100%{background-position:0% 0%}
+}
