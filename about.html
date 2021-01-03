@@ -32,6 +32,29 @@
 	
 <div id="container" class="containerbg" style="height: 600px;">
   <div id="output" class="containerbg"></div>
+	
+	<div class="loader-wrapper">
+        <div class="loader">
+		<div class="loader-inner">
+		<div class="loader-line-wrap">
+			<div class="loader-line"></div>
+		</div>
+		<div class="loader-line-wrap">
+			<div class="loader-line"></div>
+		</div>
+		<div class="loader-line-wrap">
+			<div class="loader-line"></div>
+		</div>
+		<div class="loader-line-wrap">
+			<div class="loader-line"></div>
+		</div>
+		<div class="loader-line-wrap">
+			<div class="loader-line"></div>
+		</div>
+	    </div>
+		</div>
+      </div>
+	
 	<div class="main-section">
 		<nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
 	    <div class="container">
@@ -179,7 +202,12 @@
     if (name) { 
         $('.myname').css('font-size', '45px;'); // OR you can use $('.navWrap').hide();
     } 
-</script> 
+	</script> 
+	<script>
+	$(window).on("load",function(){
+     $(".loader-wrapper").fadeOut("slow");
+	});
+	</script>
 	</div>
  
   </body>
