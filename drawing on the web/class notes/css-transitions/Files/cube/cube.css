@@ -1,0 +1,97 @@
+/* centering */
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* proportion and perspective */
+#scene {
+  width: 200px;
+  height: 200px;
+  perspective: 600px;
+}
+
+.cube {
+  animation-name:spin;
+  animation-duration: 6s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+.face {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  opacity: 0.8;
+  border: 1px solid black;
+  /* text */
+  font-family: Arial;
+  line-height: 200px; /* vertical centering of text */
+  font-size: 1.5em;
+  color: white;
+  text-align: center;
+}
+
+/* font */
+.face:nth-child(1) {
+  transform: rotateY(0deg) translateZ(100px);
+  background: red;
+}
+
+/* right */
+.face:nth-child(2) {
+  transform: rotateY(90deg) translateZ(100px);
+  background-color: orange;
+}
+
+/* back */
+.face:nth-child(3) {
+  transform: rotateY(180deg) translateZ(100px);
+  background: green;
+}
+
+/* left */
+.face:nth-child(4) {
+  transform: rotateY(-90deg) translateZ(100px);
+  background: blue;
+}
+
+/* top */
+.face:nth-child(5) {
+  transform: rotateX(90deg) translateZ(100px);
+  background: purple;
+}
+
+/* bottom */
+.face:nth-child(6) {
+  transform: rotateX(-90deg) translateZ(100px);
+  background: yellow;
+}
+
+/*keyframe animation*/
+
+@keyframes spin{
+	from{transform: rotateY(0deg) rotateX(0deg);}
+	to {transform: rotateY(360deg) rotateX(360deg);}
+}
+
+/* transition 
+.cube {
+  transition-property: transform;
+  transition-duration: 2s;
+}
+
+.cube:hover {
+  transform: rotateY(180deg);
+}
+
+.cube:active {
+  transform: rotateZ(180deg);
+}*/

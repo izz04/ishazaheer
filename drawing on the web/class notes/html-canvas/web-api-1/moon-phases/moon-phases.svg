@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <symbol id="wax1" viewBox="0 0 200 200">
+    <title>Waxing Crescent Moon</title>
+    <path d="
+      M 100 10
+      C -20 10
+        -20 190
+        100 190
+      C 0 190 
+        0 10
+        100 10
+    "/>
+  </symbol>
+
+  <symbol id="wax2" viewBox="0 0 200 200">
+    <title>Waxing Crescent Moon</title>
+    <path d="
+      M 100 10
+      C -20 10
+        -20 190
+        100 190
+      C 44 190
+        44 10
+        100 10
+    "/>
+  </symbol>
+
+  <symbol id="wax3" viewBox="0 0 200 200">
+    <title>First Quarter Moon</title>
+    <path d="
+      M 100 10
+      C -20 10
+        -20 190
+        100 190
+      C 88 190
+        88 10
+        100 10
+    "/>
+  </symbol>
+
+  <symbol id="wax4" viewBox="0 0 200 200">
+    <title>Waxing Gibbous Moon</title>
+    <path d="
+      M 100 10
+      C -20 10
+        -20 190
+        100 190
+      C 132 190
+        132 10
+        100 10
+    "/>
+  </symbol>
+
+  <symbol id="wax5" viewBox="0 0 200 200">
+    <title>Waxing Gibbous Moon</title>
+    <path d="
+      M 100 10
+      C -20 10
+        -20 190
+        100 190
+      C 176 190
+        176 10
+        100 10
+    "/>
+  </symbol>
+  
+  <symbol id="full" viewBox="0 0 200 200">
+    <title>Full Moon</title>
+    <path d="
+      M 100 10
+      C -20 10
+        -20 190
+        100 190
+      C 220 190
+        220 10
+        100 10
+    "/>
+  </symbol>
+
+  <symbol id="wane1" viewBox="0 0 200 200">
+    <title>Waning Gibbous Moon</title>
+    <path d="
+      M 100 10
+      C 24 10
+        24 190
+        100 190
+      C 220 190
+        220 10
+        100 10
+    "/>
+  </symbol>
+
+  <symbol id="wane2" viewBox="0 0 200 200">
+    <title>Waning Gibbous Moon</title>
+    <path d="
+      M 100 10
+      C 68 10
+        68 190
+        100 190
+      C 220 190
+        220 10
+        100 10
+    "/>
+  </symbol>
+
+  <symbol id="wane3" viewBox="0 0 200 200">
+    <title>Third Quarter Moon</title>
+    <path d="
+      M 100 10
+      C 112 10
+        112 190
+        100 190
+      C 220 190
+        220 10
+        100 10
+    "/>
+  </symbol>
+
+  <symbol id="wane4" viewBox="0 0 200 200">
+    <title>Waning Crescent Moon</title>
+    <path d="
+      M 100 10
+      C 156 10
+        156 190
+        100 190
+      C 220 190
+        220 10
+        100 10
+    "/>
+  </symbol>
+
+  <symbol id="wane5" viewBox="0 0 200 200">
+    <title>Waning Crescent Moon</title>
+    <path d="
+      M 100 10
+      C 200 10
+        200 190
+        100 190
+      C 220 190
+        220 10
+        100 10
+    "/>
+  </symbol>
+</svg>

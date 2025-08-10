@@ -1,0 +1,156 @@
+@charset "utf-8";
+/* CSS Document */
+*{
+	margin:0;
+	padding:0;
+}
+
+.a,.b,.c,.d,.e,.f,.g,.h {
+	padding: 10px;
+}
+.wrapper {
+	height: 100vh;
+    display: grid; /* this applies only to direct child elements */
+    grid-template-columns: repeat(6,1fr); /* three columns */
+    grid-template-rows: repeat(6,1fr);
+    column-gap: 10px;
+    row-gap: 1em;
+}
+
+/* placing items with grid lines */
+.a {
+	background-color: blue;
+	grid-column-start: 1;
+    grid-column-end: 4;
+    grid-row-start: 1;
+    grid-row-end: 4;
+    z-index: 0;
+	display: grid;
+	grid-template-rows: subgrid;
+	grid-template-columns: subgrid;
+}
+
+/* alternative synytax for placing grid items */
+.b {
+	background-image: url('media/sun.gif');
+    grid-column-start: 2;
+    grid-column-end: 4;
+    grid-row-start: 2;
+    grid-row-end: 4;
+    z-index: 1;
+}
+
+.c {
+	background-image: url('media/snow.gif');
+    grid-column-start: 1;
+    grid-column-end: 7;
+    grid-row-start: 1;
+    grid-row-end: 3;
+    z-index: 2;
+}
+
+.d {
+	background-image: url('media/cat 2.gif');
+	background-repeat: no-repeat;
+	background-size: contain;
+    grid-column-start: 5;
+    grid-column-end: 6;
+    grid-row-start: 3;
+    grid-row-end: 4;
+    z-index: 1;
+}
+
+.e {
+	background-image: url('media/cat 1.gif');
+	background-repeat: no-repeat;
+	background-size: contain;
+    grid-column-start: 4;
+    grid-column-end: 5;
+    grid-row-start: 4;
+    grid-row-end: 6;
+    z-index: 1;
+}
+
+.f {
+	background-image: url('media/man.gif');
+	background-repeat: no-repeat;
+	background-size: contain;
+    grid-column-start: 1;
+    grid-column-end: 3;
+    grid-row-start: 4;
+    grid-row-end: 7;
+    z-index: 1;
+}
+
+.g {
+	background-image: url('media/baby.gif');
+	background-repeat: no-repeat;
+	background-size: contain;
+    grid-column-start: 6;
+    grid-column-end: 7;
+    grid-row-start: 5;
+    grid-row-end: 7;
+    z-index: 1;
+}
+
+
+
+
+
+
+audio{
+	position: fixed;
+	top: 20px;
+	right: 50px;
+	
+}
+
+.theme-a video {
+	mix-blend-mode:hard-light;
+	top:0;
+	left: 0;
+	min-height: 100%;
+	min-width:100%;
+	width: auto;
+	height: auto;
+}
+
+#container{
+	background-color: black;
+	background-image: url('media/grained.gif');
+	background-size: cover;
+	position: fixed;
+	top: 0;
+	left: 0;
+	min-height: 100%;
+	min-width:100%;
+	width: auto;
+	height: auto;
+	z-index: 40;
+}
+
+
+@media (prefers-color-scheme: dark) {
+  .theme-a.adaptive video {
+    mix-blend-mode:darken;
+	top:0;
+	left: 0;
+	min-height: 100%;
+	min-width:100%;
+	width: auto;
+	height: auto;
+  }
+  .theme-a.adaptive #container{
+	background-color: black;
+	background-image: url('media/hexwave.gif');
+	background-size: cover;
+	position: fixed;
+	top: 0;
+	left: 0;
+	min-height: 100%;
+	min-width:100%;
+	width: auto;
+	height: auto;
+	z-index: 40;
+}
+}

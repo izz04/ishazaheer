@@ -1,0 +1,315 @@
+html, body {
+  height: 100%;
+}
+
+body {
+  position: relative;
+  overflow: hidden;
+  background-color: #111;
+  font-family: 'Montserrat', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+.head {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 2vw 2.5vw;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.head > div {
+  display: flex;
+}
+.head a {
+  position: relative;
+  color: #fff;
+  text-decoration: none;
+  font-size: 1rem;
+  pointer-events: all;
+  overflow: hidden;
+}
+.head a div, .head a:after {
+  transition: -webkit-transform 0.85s cubic-bezier(0.19, 1, 0.22, 1);
+  transition: transform 0.85s cubic-bezier(0.19, 1, 0.22, 1);
+  transition: transform 0.85s cubic-bezier(0.19, 1, 0.22, 1), -webkit-transform 0.85s cubic-bezier(0.19, 1, 0.22, 1);
+}
+.head a:after {
+  content: attr(data-txt);
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  color: rgb(255,241,0);
+}
+.head a:nth-child(2) {
+  margin-left: 2vw;
+}
+.head a:hover div, .head a:hover:after {
+  -webkit-transform: translateY(-100%);
+          transform: translateY(-100%);
+}
+
+.subheads4{
+	font-family:"Montserrat";
+	color: white;
+	font-size: 1.5vw;
+}
+@media  (max-width: 480px){.subheads4 {
+	font-size: 5vw;}}
+	
+.build-with {
+	position: absolute;
+	top: 0;
+	left: 0;
+
+ z-index: 20;
+  animation: build 0s ease 1s normal forwards;
+}
+
+@media  (max-width: 480px){.build-with {max-width: 90%; 
+	left: 6%;
+	top: 47%;}}
+
+@keyframes build {
+  0% {opacity: 0; transform: translateY(4em)}
+  100% {opacity: 1;}
+}
+
+
+
+.making {
+  opacity: 0;
+  animation: btn 1s ease 1.5s normal forwards;
+	color: white;
+ font-family:Consolas, "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", Monaco, "Courier New", "monospace";
+	font-size: 1vw;
+}
+@media  (max-width: 480px){.making{font-size: 4vw;}}
+
+.build-with .btn {
+  opacity: 0;
+  text-decoration: none;
+  font-family:Consolas, "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", Monaco, "Courier New", "monospace";
+  font-weight: 400;
+  font-size: 24px;
+  color:#000000;
+  background-color:#EFBB0B;
+  padding: 20px 32px;
+  border-radius: 3px;
+  animation: btn .5s ease 1.7s normal forwards;
+}
+
+@keyframes btn {
+  0% {opacity: 0; transform: translateY(4em)}
+  75% {opacity: 1; transform: translateY(-.5em)}
+  100% {opacity: 1;}
+}
+
+.build-with .btn:hover {
+  background-color:#5B4400;
+}
+
+.build-with .btn:active {
+  background-color:#5B4400;
+}
+
+
+.build-with a {
+  display: inline-block;
+  transition: background .25s ease,
+              -webkit-transform .25s ease;
+}
+
+.build-with a:hover {
+  transform: scale(1.1);
+}
+
+.build-with a:active {
+  transform: scale(.9);
+}
+
+
+
+.dom-gl {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.slider {
+  position: relative;
+  padding: 0 22.5vw;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+  cursor: -webkit-grab;
+  cursor: grab;
+  z-index: 2;
+}
+.slider__inner {
+  display: flex;
+  position: relative;
+}
+
+.slide {
+  overflow: hidden;
+}
+.slide:first-child {
+  position: relative;
+}
+.slide:not(:first-child) {
+  position: absolute;
+  top: 0;
+  height: 100%;
+}
+.slide__inner {
+  position: relative;
+  overflow: hidden;
+  width: 55vw;
+  padding-top: 56.5%;
+}
+.slide img {
+  background: radial-gradient(yellow, brown);
+  display: none;
+  height: 100%;
+  width: 140%;
+  position: absolute;
+  top: 0;
+  left: -20%;
+  object-fit: cover;
+  will-change: transform;
+}
+
+img.ri
+{
+	position: absolute;
+	width: 60vw;
+	top: 10%;
+	left: 10%;
+ z-index: 20;
+}
+img.ri:empty
+{
+	top: 50%;
+	left: 50%;
+	-webkit-transform: translate(-50%, -50%);
+	-moz-transform: translate(-50%, -50%);
+	-ms-transform: translate(-50%, -50%);
+	-o-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+}
+@media  (max-width: 480px){img.ri
+{width: 120vw;}}
+
+img.rix
+{
+	position: absolute;
+	width: 5.5vw;
+	top: 10%;
+	left: 10%;
+ z-index: 20;
+}
+img.rix:empty
+{
+	top: 38%;
+	left: 49%;
+	-webkit-transform: translate(-38%, -49%);
+	-moz-transform: translate(-38%, -49%);
+	-ms-transform: translate(-38%, -49%);
+	-o-transform: translate(-38%, -49%);
+	transform: translate(-38%, -49%);
+}
+@media  (max-width: 480px){img.rix
+{width: 25vw;
+
+	top: 28%;}}
+@media  (max-width: 480px){img.rix:empty{
+top: 28%;
+	left: 47%;
+	-webkit-transform: translate(-38%, -46%);
+	-moz-transform: translate(-38%, -46%);
+	-ms-transform: translate(-38%, -46%);
+	-o-transform: translate(-38%, -46%);
+	transform: translate(-38%, -46%);}}
+
+.titles {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 3;
+  
+  
+}
+
+@media  (max-width: 480px){.titles 
+{
+  top: 40%;}}
+
+
+.titles__list {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.titles__title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 7vw;
+  font-weight: bold;
+  color: #fff;
+}
+
+	
+.titles__title--proxy {
+  visibility: hidden;
+}
+
+.progress {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0.25rem;
+  overflow: hidden;
+  pointer-events: none;
+}
+.progress__line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  -webkit-transform: scaleX(0);
+          transform: scaleX(0);
+  -webkit-transform-origin: left;
+          transform-origin: left;
+  background-color: #fff;
+}
+.progress__line:nth-child(2) {
+  -webkit-transform-origin: right;
+          transform-origin: right;
+}

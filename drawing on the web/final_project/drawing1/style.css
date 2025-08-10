@@ -1,0 +1,32 @@
+html, body { font-size: 100%; }
+body
+{
+	font-family: sans-serif;
+	overflow-x: hidden;
+	overflow-y: hidden;
+}
+
+#canvas-main
+{
+	z-index: -250;
+	
+	position: absolute;
+	top: 0; right: 0;
+	bottom: 0; left: 0;
+	
+	background: radial-gradient(circle farthest-corner, rgba(105,105,105, 0.5) 30%, rgba(0, 0, 0, 0.3)),
+		linear-gradient(90deg, transparent 2.5vmin, rgba(255, 255, 255, 0.3) 2.5vmin, transparent 2.9vmin) top left,
+		linear-gradient(0deg, transparent 2.5vmin, rgba(255, 255, 255, 0.3) 2.5vmin, transparent 2.9vmin) top left,
+		radial-gradient(circle closest-corner, rgb(105,105,105), rgb(64,64,64));
+	background-size: 100%, 5vmin 5vmin, 5vmin 5vmin, 100%;
+}
+
+.helptext
+{
+	z-index: 1000;
+	position: absolute;
+	right: 0; bottom: 0; left: 0;
+	
+	text-align: center;
+	color: rgba(255, 255, 255, 0.5);
+}

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Paths</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+		canvas{border: 1px solid black}
+    </style>
+  </head>
+
+  <body>
+	<canvas id="drawing" width="450" height="300">
+		<p>Fallback content can go here (i.e. image or text)</p>
+	</canvas>
+	  
+	<script>
+		const canvas = document.getElementById('drawing');
+		const context=canvas.getContext('2d');
+		const width=canvas.width;
+		const height=canvas.height;
+		
+		context.moveTo(0,0);
+		context.lineTo(width,height);
+		
+		let gradient= context.createLinearGradient(100,50,350,250);
+		gradient.addColorStop(0,'orange');
+		gradient.addColorStop(0,'pink');
+		context.fillStyle=gradient;
+		
+		context.beginPath();
+		context.moveTo(225,50);
+		context.lineTo(100,250);
+		context.lineTo(350,250);
+		context.closePath();
+		context.stroke();
+		context.fill();
+		
+		context.strokeStyle='green';
+		context.fillStyle ='rgba(255,165,0,0.3)';
+		context.beginPath();
+		//x,y,radiusX,radiusY,rotation, startAngle, endAngle, counterclockwise(optional)
+		context.ellipse(width/2,height/2,100,100,0,0,2*Math.PI,false);
+		context.stroke();
+		context.fill();
+		
+		context.strokeStyle='purple';
+		context.beginPath();
+		context.arc(width/2, height/2, 125, Math.PI*2, 4);
+		//bezier curve cx1, cy1, cx2, cy2, x, y(end point)
+		context.bezierCurveTo(255,150,350,75, width/2+125,height/2);
+		context.stroke();
+	  </script>
+  </body>
+</html><!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Untitled Document</title>
+</head>
+
+<body>
+</body>
+</html>

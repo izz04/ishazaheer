@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>HTML Canvas Pixel Exercise</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body {
+        margin: 0;
+        display: flex;
+        height: 100vh;
+        align-items: center;
+        justify-content: center;
+      }
+
+      canvas {border: 1px solid black;}
+
+      img {display: none;}
+    </style>
+  </head>
+
+  <body>
+    <img src="fountain-450.png" srcset="fountain-900.png 2x" width="450" height="300" alt="Washington Square Park fountain">
+
+    <canvas width="450" height="300"></canvas>
+
+    <script>
+      const canvas = document.querySelector('canvas');
+      const context = canvas.getContext('2d');
+
+      let width;
+      let height;
+
+      // set the number of canvas, scaled for screen resolution
+      let pxScale = window.devicePixelRatio;
+      // console.log(pxScale);
+
+      const image = document.querySelector('img');
+
+      function setup() {
+        // fixed canvas size
+        width = canvas.width;
+        height = canvas.height;
+
+        // set the CSS display size
+        canvas.style.width = width + 'px';
+        canvas.style.height = height + 'px';
+
+        canvas.width = width * pxScale;
+        canvas.height = height * pxScale;
+
+        // normalize the coordinate system
+        context.scale(pxScale, pxScale);
+      }
+
+      function draw() {
+        context.drawImage(image, 0, 0, 450, 300);
+
+        let pixels = context.getImageData(0, 0, width * pxScale, height * pxScale);
+        let pixelData = pixels.data;
+
+        console.log(pixelData.length); // verify that image data has been read
+      }
+
+      // wait for the DOM to load, including dependent resources
+      window.addEventListener('load', () => {
+        setup();
+        draw();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>My SVG Valentine</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa&display=swap" rel="stylesheet">
+    <style>
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #valentine {
+        font-family: 'Comfortaa', cursive;
+        width: 500px;
+        height: 369px;
+        position: absolute;
+		transform: rotateY(180deg);
+        transform-style: preserve-3d;
+      }
+
+      img {
+        clip-path: url('#heart');
+      }
+
+      .front, .back {
+        position: absolute;
+      }
+
+      .back {
+        backface-visibility: hidden;
+        width: 100%;
+        height: 100%;
+        transform: rotateY(180deg);
+        text-align: center;
+        line-height: 250px;
+        color: white;
+        font-size: 1.2em;
+      }
+    </style>
+  </head>
+
+  <body>
+    <svg width="0" height="0" viewBox="0 0 500 368.95">
+      <defs>
+        <clipPath id="heart">
+          <title>Arrow through Heart</title>
+          <path d="M429.4,24.41l18,12.7-24.79,15.35c-3.27-4.96-7.09-9.8-11.53-14.48-80.09-84.6-160.59-1.43-160.59-1.43,0,0-80.5-83.16-160.59,1.43-53.48,56.49-18.99,134.72,31.52,200.94l-23.95,14.83-47.89.54L0,284.96l44.39,10.45-10.44,44.39,49.57-30.68,21.85-42.63,25.37-15.7c53.7,66.52,119.75,118.17,119.75,118.17,0,0,233.5-182.57,179.35-303.32l25.46-15.76,3.35,21.77,41.36-58.27-70.6,11.04Z"/>
+        </clipPath>
+      </defs>
+    </svg>
+
+    <div id="valentine">
+      <img class="front" src="mbv.png" width="500" height="500" alt="Loveless album cover">
+
+      <div class="back">
+        <p>Happy Valentine’s Day</p>
+      </div>
+    </div>
+  </body>
+</html>

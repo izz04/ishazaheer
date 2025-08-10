@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CSS 2D Transforms</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #container {
+        display: flex;
+      }
+
+      .compass {
+        padding: 5px;
+      }
+		
+	  .c1{
+		transform: translate(75px,-50px);
+	  }
+	  .c2{
+		/*transform: translate(-50px);*/
+		transform: rotate(45deg);
+		/*transform-origin: 200px 200px; bottom right*/
+		transform-origin: 50% 50%;
+	  }
+	  .c3{
+		transform: scale(0.5,0.5);
+	  }
+		.c4{
+			transform: skew(40deg, 20deg);
+		}
+    </style>
+  </head>
+
+  <body>
+    <div id="container">
+      <img class="compass c1" src="compass.svg" width="200" height="200">
+      <img class="compass c2" src="compass.svg" width="200" height="200">
+      <img class="compass c3" src="compass.svg" width="200" height="200">
+      <img class="compass c4" src="compass.svg" width="200" height="200">
+    </div>
+  </body>
+</html>

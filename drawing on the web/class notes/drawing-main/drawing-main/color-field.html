@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Color Field</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body {
+        width: 100%;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body>
+    <script>
+      const background = document.querySelector('body');
+		
+	  displayHeight = () => background.style.height = window.innerHeight + 'px';
+
+      randomColor = () => {
+        let randomNumber = Math.floor(Math.random() * 360);
+        console.log(randomNumber);
+        background.style.backgroundColor = `hsl(${randomNumber}, 100%, 50%)`;
+      }
+	  
+	  //mapping color to X and Y coordinates
+	  
+	  let hueBrowserRatio;
+	  let lightnessBrowserRatio;
+		
+		function colorScale(){
+			let browserWidth = window.innerWidth;
+			let browserHeight = window.innerHeight;
+			console.log ('Browser width', browserWidth);
+			console.log ('Browser height', browserHeight);
+			
+			hueBrowserRatio=browserWidth/360;
+			lightnessBrowserRatio=browserHeight/100;
+			console.log ('Hue/browser width', hueBrowserRatio);
+			console.log ('Lightness/browser height', lightnessBrowserRatio);
+		}
+		
+		getPosition = (event) =>{
+			let xPos = event.clientX;
+			let yPos = event.clientY;
+			console.log ('X:',xPos);
+			console.log ('Y:',yPos);
+			
+			updateColor (xPos, yPos);
+		}
+		
+		function updateColor (xPos,yPos){
+			//maphue to pointer position relative to browser width
+			let hue=Math.ceil(xPos/hueBrowserRatio);
+			console.log('Hue:',hue);
+			//map lightness to pointer position relative to browser height
+			let lightness=100-Math.ceil (yPos/lightnessBrowserRatio);
+			console.log ('Lightness:', lightness);
+			
+			//hue,saturation, and lightness of the background color
+			background.style.backgroundColor = `hsl(${hue}, 100%, ${lightness}%)`;
+		}
+
+      window.addEventListener('load', function(){
+		displayHeight();
+		randomColor();
+	 });
+		
+		//update when the page is resized
+		window.addEventListener('resize',function(){
+			displayHeight();
+			colorScale;
+		})
+		
+		//detect pointer movements
+		window.addEventListener('pointerdown',getPosition);
+		window.addEventListener('pointermove',getPosition);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Loops</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+		canvas{border: 1px solid black}
+    </style>
+  </head>
+
+  <body>
+	<canvas id="drawing" width="450" height="300">
+		<p>Fallback content can go here (i.e. image or text)</p>
+	</canvas>
+	  
+	<script>
+		const canvas = document.getElementById('drawing');
+		const context=canvas.getContext('2d');
+		const width=canvas.width;
+		const height=canvas.height;
+		
+		context.moveTo(0,0);
+		context.lineTo(width,height);
+		
+		let x=25;
+		let y=25;
+		
+		let spacing=50;
+		let radius=20;
+		
+		let alpha=1;
+		let red=255;
+		let green=0;
+		let blue=255;
+		
+		for (let row=0;row<height;row+=spacing){
+			for (let col=0;col<width;col+=spacing){
+				context.beginPath();
+				context.ellipse(x,y,radius,radius,0,0,2*Math.PI);
+				context.strokeStyle='rgba(${red},${green},${blue},${alpha})';
+				context.stroke();
+				green+=4;
+				blue-=4;
+				x+=spacing;
+			}
+			x=25;
+			y+=spacing;
+			}
+		}
+	  </script>
+  </body>
+</html><!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Untitled Document</title>
+</head>
+
+<body>
+</body>
+</html>

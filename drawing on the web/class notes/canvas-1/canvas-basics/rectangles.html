@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Basic Rectangles</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+		canvas{border: 1px solid black}
+    </style>
+  </head>
+
+  <body>
+	<canvas id="drawing" width="450" height="300">
+		<p>Fallback content can go here (i.e. image or text)</p>
+	</canvas>
+	  
+	<script>
+		const canvas = document.getElementById('drawing');
+		const context=canvas.getContext('2d');
+		const width=canvas.width;
+		const height=canvas.height;
+		
+		context.moveTo(0,0);
+		context.lineTo(width,height);
+		context.stroke() //draw line
+		
+		context.fillStyle='rgba(0,255,200,0.5';
+		context.fillRect(100,25,200,200);
+		context.clearRect(125,50,200,200);
+		context.fillStyle='rgba(255,255,200,0';
+		context.strokeRect(150,75,200,200);
+	</script>
+  </body>
+</html>

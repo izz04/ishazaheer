@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Scroll Data</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Space+Mono&display=swap" rel="stylesheet"> 
+    <style>
+      body {
+        width: 300vw;
+        height: 300vh;
+        margin: 0;
+        padding: 0;
+        font-family: 'Space Mono', monospace;
+      }
+      
+      #container {
+        width: 100%;
+        padding: 20px;
+        position: fixed;
+        top: 0;
+      }
+
+      @media (min-width: 480px) {
+        #container {
+          display: flex;
+          justify-content: space-between;
+        }
+
+        section {width: calc(98%/2);}
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="container">
+      <section>
+        <p>Viewport width: <span id="vwidth"></span></p>
+        <p>Viewport height: <span id="vheight"></span></p>
+        <p>Page width: <span id="pwidth"></span></p>
+        <p>Page height: <span id="pheight"></span></p>
+      </section>
+
+      <section>
+        <p>Top: <span id="topscroll"></span></p>
+        <p>Right: <span id="rightscroll"></span></p>
+        <p>Bottom: <span id="bottomscroll"></span></p>
+        <p>Left: <span id="leftscroll"></span></p>
+      </section>
+    </div>
+	  
+	  <script>
+		  
+		const body=document.querySelector('body');
+		
+	  	viewportDimensions = () =>{
+			vwidth.textContent=window.innerWidth;
+			vheight.textContent=window.innerHeight;
+		}
+		
+		elementDimensions = () =>{
+			let elementData=body.getBoundingClientRect();
+			console.log(elementData);
+			pwidth.textContent=elementData.width;
+			pheight.textContent=elementData.height;
+			topscroll.textContent=elementData.top;
+			rightscroll.textContent=elementData.right;
+			bottomscroll.textContent=elementData.bottom;
+			leftscroll.textContent=elementData.left;
+		}
+		
+		window.addEventListener ('load', function(){
+			viewportDimensions();
+			elementDimensions();
+		})
+		  
+		window.addEventListener ('resize', function(){
+			viewportDimensions();
+			elementDimensions();
+		})
+		  
+		window.addEventListener('scroll',elementDimensions)
+	  </script>
+	  
+  </body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CSS Transition Basics</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body {margin: 0;}
+
+      #container {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .shape {
+        width: 50%;
+        height: 20%;
+		transition-property: background-color transform;
+		  transition-duration: 0.5s;
+		  transition-timing-function: ease;
+		
+      }
+		
+		
+
+      .shape:nth-child(1) {background-color: red;}
+      .shape:nth-child(2) {background-color: orange;}
+      .shape:nth-child(3) {background-color: yellow;}
+      .shape:nth-child(4) {background-color: green;}
+      .shape:nth-child(5) {background-color: blue;}
+		
+		.shape:hover{
+			background-color: purple;
+			transform: translateX(25%);
+		}
+		
+		.shape:active{
+			background-color: black;
+			transition-duration: 0s;
+		}
+    </style>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="shape"></div>
+      <div class="shape"></div>
+      <div class="shape"></div>
+      <div class="shape"></div>
+      <div class="shape"></div>
+    </div>
+  </body>
+</html>

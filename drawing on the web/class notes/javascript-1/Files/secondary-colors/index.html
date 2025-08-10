@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Secondary Colors</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+		
+		body{transition: background-color=500ms;}
+		
+      .btn-bg {
+        fill: none;
+        stroke: gray;
+      }
+      
+      .btn1 {fill: green;}
+      .btn2 {fill: purple;}
+      .btn3 {fill: orange;}
+      
+      .btn1:hover, .btn2:hover, .btn3:hover {opacity: 0.7;}
+      .btn1:active, .btn2:active, .btn3:active {opacity: 1;}
+    </style>
+  </head>
+
+  <body>
+    <svg class="btn" width="100" height="100">
+      <circle class="btn-bg" cx="50" cy="50" r="48" />
+      <circle class="btn1" cx="50" cy="50" r="40" />
+    </svg>
+
+    <svg class="btn" width="100" height="100">
+      <circle class="btn-bg" cx="50" cy="50" r="48" />
+      <circle class="btn2" cx="50" cy="50" r="40" />
+    </svg>
+
+    <svg class="btn" width="100" height="100">
+      <circle class="btn-bg" cx="50" cy="50" r="48" />
+      <circle class="btn3" cx="50" cy="50" r="40" />
+    </svg>
+	  
+	<script>
+		//let firstButoon=document.querySelector('svg.btn');
+		
+		const background = document.querySelector('body');
+		
+		let allButtons=document.querySelectorAll('svg.btn');
+		console.log (buttons);
+		
+		greenBg = () =>	background.style.backgroundColor='green';
+		purpleBg = () => background.style.backgroundColor='purple';
+		orangeBg = () => background.style.backgroundColor='orange';
+		
+		//event listeners
+		buttons[0].addEventListener('click',greenBg);
+		buttons[1].addEventListener('click',purpleBg);
+		buttons[2].addEventListener('click',orangeBg);
+	</script>
+  </body>
+</html>

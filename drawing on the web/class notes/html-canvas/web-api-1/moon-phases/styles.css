@@ -1,0 +1,29 @@
+/* CSS for SVG moon phases */
+
+body {background-color: #111111;}
+
+h1 {
+  font-family: Comfortaa;
+  color: yellow;
+  position: sticky;
+  top: 10px;
+  z-index: 100;
+}
+
+.phase {
+  fill: white;
+  width: 200px;
+  height: 200px;
+  padding-bottom: 50px;
+  display: block;
+  margin: auto;
+}
+
+@media only screen and (prefers-color-scheme: light) {
+  body {background-color: skyblue;}
+  h1 {color: #111111;}
+}
+
+@media (min-width: 640px) {
+  .phase {display: inline;}
+}

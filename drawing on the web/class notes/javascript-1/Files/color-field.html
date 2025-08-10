@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Color Field</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+
+  <body>
+    <script>
+		randomColor= () = >{
+			const background=document.querySelector('body');
+			let randomNumber=Math.floor(Math.random()*360);
+			console.log (randomNumber);
+			background.style.background=`hsl(${randomNumber},100%,50%)`;
+		}
+		window.addEventListener('load',randomColor);
+	</script>
+  </body>
+</html>

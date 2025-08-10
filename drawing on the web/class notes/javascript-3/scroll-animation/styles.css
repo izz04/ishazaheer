@@ -1,0 +1,24 @@
+/* CSS for scroll-linked animation */
+
+body {
+  width: 100%;
+  height: 600vh;
+  margin: 0;
+  padding: 0;
+}
+
+#scene{
+	position:fixed;
+	width: 100%;
+	height: 100vh;
+	display: flex;
+	
+	
+}
+
+#plane{
+	widows: 300px;
+	height: 300px;
+	background: linear-gradient(to bottom right, yellow, green);
+	transform-style: preserve-3d;
+}

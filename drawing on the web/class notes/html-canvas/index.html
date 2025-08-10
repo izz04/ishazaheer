@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Extract Random Colors from Image</title>
+<style>
+    canvas {
+        border: 1px solid black;
+    }
+</style>
+</head>
+<body>
+<input type="file" id="imageInput" accept="image/*">
+<canvas id="myCanvas" width="400" height="400"></canvas>
+
+<script>
+document.getElementById('imageInput').addEventListener('change', function(e) {
+    var file = e.target.files[0];
+    var reader = new FileReader();
+    reader.onload = function(event) {
+        var img = new Image();
+        img.onload = function() {
+            var canvas = document.getElementById('myCanvas');
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            extractColors(ctx, 10); // Extract 10 random colors from the image
+        };
+        img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+});
+
+function extractColors(context, numColors) {
+    var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    var pixels = imageData.data;
+
+    var colors = [];
+
+    // Extract random colors
+    for (var i = 0; i < numColors; i++) {
+        var randomIndex = Math.floor(Math.random() * pixels.length / 4) * 4;
+        var r = pixels[randomIndex];
+        var g = pixels[randomIndex + 1];
+        var b = pixels[randomIndex + 2];
+        var a = pixels[randomIndex + 3];
+
+        var color = 'rgba(' + r + ',' + g + ',' + b + ',' + (a / 255) + ')';
+        colors.push(color);
+    }
+
+    generateObjects(colors);
+}
+
+function generateObjects(colors) {
+    var canvas = document.getElementById('myCanvas');
+    var ctx = canvas.getContext('2d');
+    var squareSize = 50;
+    var padding = 10;
+
+    var numCols = Math.ceil(Math.sqrt(colors.length));
+    var numRows = Math.ceil(colors.length / numCols);
+
+    for (var i = 0; i < numRows; i++) {
+        for (var j = 0; j < numCols; j++) {
+            var colorIndex = i * numCols + j;
+            if (colorIndex < colors.length) {
+                var x = j * (squareSize + padding);
+                var y = i * (squareSize + padding);
+                drawSquare(ctx, x, y, squareSize, colors[colorIndex]);
+            }
+        }
+    }
+}
+
+function drawSquare(ctx, x, y, size, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, size, size);
+}
+</script>
+</body>
+</html>

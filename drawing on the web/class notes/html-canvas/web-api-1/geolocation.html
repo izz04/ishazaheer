@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Geolocation API</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Space+Mono&display=swap" rel="stylesheet">
+    <style>
+      h1, p {
+        font-family: 'Space Mono', 'Courier New', monospace;
+        font-weight: lighter;
+        font-size: 1.2em;
+      }
+    </style>
+  </head>
+
+  <body>
+	  
+	  <main>
+	  	<button type="button">Determine location</button>
+	  </main>
+	
+	  <script>
+	  	let content=document.querySelector('main');
+		let button=document.querySelector('button');
+		  
+		function getLocation(){
+			if (navigation.geolocation){
+				content.innerHTML='<p>Attempting to access your location....</p>';
+				navigator.geolocation.getCurrentPosition(showPosition);
+			}
+			else{
+				content.innerHTML='<p>Unable to determine your location.</p>';
+			}
+		}
+		 function showPosition(position){
+			 let lat='<p>Latitude: '+position.coords.latitude+'</p>';
+			 let lon='<p>Longitude: '+position.coords.longitude+'</p>';
+			 let coordinates=lat+lon;
+			 content.innerHTML=coordinates;
+		}
+		
+		function showError(error){
+			switch(error.code){
+				case error.PERMISSION0_DENIED:
+					console.log('User denied the request for location');
+					break;
+					
+				case error.POSITION_UNAVAILABLE:
+					console.log('Location information is not available');
+					break;
+			}
+					
+		button.addEventListener('click',getLocation);
+		}
+	  </script>
+  </body>
+</html>

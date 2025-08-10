@@ -1,0 +1,169 @@
+*{
+  position: fixed;
+}
+
+body{
+  background: #DEB887;
+  position : absolute;
+  display: inline;
+  
+}
+
+#left, #right{
+      width: 12px;
+      height:50px;
+      background: #FFE4C4;
+      
+      border-top:25px solid #16a085;
+      position: absolute;
+}
+#left{
+  margin: 210px 160px;
+  border-radius:15px 15px 15px 15px;
+  -webkit-animation: wave 1s linear INFINITE;
+  -moz-animation: wave 1s linear INFINITE;
+  -o-animation: wave 1s linear INFINITE;
+  transform-origin: top ;
+  transform: rotate(110deg);
+  
+}
+
+#right{
+  margin: 208px 214px;
+  border-radius:0px 20px 15px 15px;
+  transform: rotate(-30deg);
+  transform-origin: top;
+  
+}
+
+#body{
+  width: 63px;
+  height: 70px;
+  background: #1abc9c;
+  position: absolute;
+  margin: 200px 162px;
+  border-bottom: 16px solid #1abc9c;
+  font-size: 35px;
+  line-height: 80px;
+  border-radius: 10px 15px 0px 0px;
+  font-family: 'Gloria Hallelujah', cursive;
+    
+}
+
+#head {
+  background: #FFE4C4;
+  width: 35px;
+  height: 30px;
+  border-radius: 20px 20px 20px 20px;
+  border-top:15px solid black;
+  margin: 160px 175px;
+  position: absolute;
+  -webkit-animation: shake 1s infinite;
+   -moz-animation: shake 1s infinite;
+   -o-animation: shake 1s infinite;
+}
+
+#lright, #lleft{
+      width: 25px;
+      height:55px;
+      background: #16a085;
+      position: absolute;
+}
+#lright{
+  margin: 270px 200px;
+  position: absolute;
+}
+
+#lleft{
+    margin: 270px 162px;
+    position: absolute;
+}
+
+#lshoe, #rshoe {
+  width: 40px;
+  height: 15px;
+  background: black;
+  position: absolute;
+}
+
+#lshoe{
+  margin: 325px 200px;
+  border-radius: 0px 30px 3px 0px;
+}
+#rshoe{
+  margin: 325px 147px;
+  border-radius: 30px 0px 0px 3px;
+}
+
+@-webkit-keyframes wave {
+  50% {transform:rotate(60deg);}
+  50% {transform: rotate(170deg);}
+}
+@-moz-keyframes wave {
+  50% {transform:rotate(60deg);}
+  50% {transform: rotate(170deg);}
+}
+@-o-keyframes wave {
+  50% {transform:rotate(60deg);}
+  50% {transform: rotate(170deg);}
+}
+
+@-webkit-keyframes shake{
+  50%{transform: translateX(-5px);}
+  50%{transform: translateX(5px);}
+ 
+}
+@-moz-keyframes shake{
+  50%{transform: translateX(-5px);}
+  50%{transform: translateX(5px);}
+ 
+}
+@-o-keyframes shake{
+  50%{transform: translateX(-5px);}
+  50%{transform: translateX(5px);}
+ 
+}
+ span{
+   font-size: 35px;
+  line-height: 80px;
+  font-family: 'Gloria Hallelujah', cursive;
+   margin-left:3px;
+   }
+
+#eye{
+  line-height: 3px;
+  font-size: 40px;
+}
+
+
+
+#talk {
+   width: 220px;
+   height: 90px;
+   background: #FF7F50;
+   position: relative;
+  border-radius: 0px 20px 0px 20px;
+  margin: 150px 260px;
+  text-align: center;
+  
+}
+
+#talk:before {
+   content:"";
+   position: absolute;
+   right: 100%;
+   top: 26px;
+   width: 0;
+   height: 0;
+   border-top: 13px solid transparent;
+   border-right: 36px solid #FF7F50;
+   border-bottom: 13px solid transparent;
+  text-align: center;
+}
+
+#alk{
+  color: #00000;
+  font-size: 20px;
+  line-height: 2em;
+  position: relative;
+}

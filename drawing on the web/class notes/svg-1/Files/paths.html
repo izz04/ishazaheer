@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>SVG Paths</title>
+    <style>
+      svg {
+        border: 1px solid red;
+        width: 200px;
+        height: auto;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- square -->
+    <svg viewBox="0 0 200 200">
+		<path d="
+			M 20 20
+			H 180
+		  	V 180
+		  	H 20
+			z
+		"/>
+    </svg>
+
+    <!-- polygon -->
+    <svg viewBox="0 0 200 200">
+      <path d="
+			  M 20 40
+			  L 100 20
+		    L 175 175
+		    L 120 120
+			  z
+		  "/>
+    </svg>
+
+    <!-- shape with bezier curve -->
+    <svg viewBox="0 0 200 200">
+      <path d="
+			  M 20 40
+			  L 100 20
+		    L 175 175
+		    L 120 180
+        C 40 150
+          70 50
+          20 40
+		  "/>
+      <!-- bezier curve handles -->
+      <circle cx="40" cy="150" r="4" fill="red" />
+      <line x1="40" y1="150" x2="120" y2="180" stroke="red" stroke-width="1" />
+      <circle cx="70" cy="50" r="4" fill="red" />
+      <line x1="70" y1="50" x2="20" y2="40" stroke="red" stroke-width="1" />
+    </svg>
+  </body>
+</html>
