@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Background Lab</title>
+<!-- Everything the opening screen needs starts downloading with the page, not one script after
+     another; the portrait first. The fonts don't hold up the first paint (they swap in anyway). -->
+<link rel="preload" as="image" href="assets/portrait-cutout.webp" fetchpriority="high">
+<link rel="preload" as="image" href="assets/hair-mask.png">
+<link rel="preload" as="image" href="assets/eye-mask.png?v=upper-lash-20261027">
+<link rel="preload" as="image" href="assets/eye-geometry.png?v=upper-lash-20261027">
+<link rel="modulepreload" href="portrait-anim.js?v=round-iris-6">
+<link rel="modulepreload" href="stickers/sticker.js?v=skin-stickers-7">
+<link rel="modulepreload" href="stickers/baked.js?v=fast-1">
+<link rel="modulepreload" href="stickers/set.js?v=cards-5">
+<link rel="modulepreload" href="stickers/skin-surface.js?v=fast-1">
+<link rel="modulepreload" href="skyline.js?v=pink-1">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<style>
+  :root { --ink: #fff4e8; --hair: #4e352f; }  /* --hair: the lit brown of Isha's hair in the portrait */
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; font-family: 'Space Grotesk', system-ui, sans-serif; background: #111; color: var(--ink); }
+  /* the opening screen stays pinned while you scroll through the hero and the camera flies from
+     sticker to sticker; the hero's height (one screen per sticker) is set by the script */
+  .hero { position: relative; height: 260vh; }
+  .stage { position: sticky; top: 0; height: 100vh; min-height: 560px; overflow: hidden; perspective: 1400px; }
+  canvas#bg { will-change: transform, filter; }
+  /* the portrait and its stickers move together as the camera's subject */
+  .camera { position: absolute; inset: 0; z-index: 2; transform-origin: 0 0; }
+  /* a sharp copy of the sticker the camera rests on, over the face texture's soft one */
+  .focus { position: absolute; z-index: 3; pointer-events: none; opacity: 0; }
+  .tag, .vert { transition: opacity .3s; }
+  .stage.zoomed .tag, .stage.zoomed .vert { opacity: 0; }
+  .stage.zoomed .stk .tip { display: none; }
+
+  /* the card for the sticker in focus, like a résumé entry beside it */
+  .card {
+    position: absolute; z-index: 6; left: 58vw; top: 50%; width: min(34vw, 420px);
+    padding: 20px 22px; border-radius: 16px; background: rgba(16, 28, 22, .5);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    opacity: 0; pointer-events: none; transform: translateY(-50%);
+  }
+  .card.on { pointer-events: auto; }
+  .card .count { margin: 0 0 6px; font-size: 12px; letter-spacing: .2em; opacity: .7; }
+  .card h3 { margin: 0 0 6px; font-size: clamp(22px, 2.6vw, 32px); line-height: 1.15; }
+  .card .role { margin: 0 0 12px; font-size: 15px; opacity: .85; }
+  .card ul { margin: 0 0 14px; padding: 0; list-style: none; font-size: 14px; line-height: 1.5; }
+  .card li { padding-left: 1.1em; text-indent: -1.1em; }
+  .card li::before { content: "— "; opacity: .6; }
+  .card a { color: var(--ink); font-size: 14px; font-weight: 600; }
+  @media (max-width: 760px) {
+    .card { left: 16px; right: 16px; top: auto; bottom: 18px; width: auto; transform: none; }
+  }
+
+  /* Small face stickers, projected from the portrait's original coordinates. */
+  .stickers { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
+  .stk {
+    position: absolute; display: block; pointer-events: auto; text-decoration: none;
+    transform: translate(-50%, -50%) rotate(var(--tilt));
+    opacity: 0; transition: opacity .5s;
+  }
+  .stk.ready { opacity: 1; }
+  .stk canvas { display: block; width: 100%; height: auto; }
+  /* Visible resting artwork is part of the face texture; DOM remains for links
+     and tooltips, and takes over only when a sticker lifts off during scroll. */
+  .stickers.skin-bound .stk canvas { opacity: var(--flight-opacity, 0); }
+  .stk .tip {
+    position: absolute; left: 50%; top: calc(100% + 6px); translate: -50% 0; rotate: calc(var(--tilt) * -1);
+    padding: 7px 12px; border-radius: 999px; font-size: 13px; background: #1f4a3f; color: #fff;
+    opacity: 0; transition: opacity .2s; pointer-events: none; white-space: nowrap;
+  }
+  .stk:hover .tip { opacity: 1; }
+  .stk.still { cursor: default; }
+
+  /* placeholder sections the stickers jump to (taken out of the page for now; filled in later) */
+  section.part { min-height: 70vh; padding: 12vh 8vw; background: #f3f7ec; color: #1f4a3f; border-top: 1px solid #dfe8d2; }
+  section.part h2 { margin: 0 0 8px; font-size: clamp(28px, 4vw, 48px); }
+  section.part p { margin: 0; opacity: .7; }
+  canvas#bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  /* paper grain over the triangles */
+  .stage::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .28; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 .7 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+  canvas#me {
+    position: absolute; z-index: 2; left: 50%; bottom: 0; transform: translateX(-50%);
+    height: 94vh; width: auto; max-width: 100vw; object-fit: contain; object-position: bottom;
+    /* the portrait's own shape, so the drawing buffer (sized each frame in portrait-anim.js)
+       never changes the layout: before, the two fed each other and it resized every frame */
+    aspect-ratio: 1122 / 1402;
+    filter: drop-shadow(0 18px 30px rgba(20, 30, 20, .35));
+    background: url("assets/portrait-cutout.webp") center bottom / contain no-repeat;
+  }
+  .placeholder {
+    position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
+    width: min(62vh, 80vw); height: 82vh; border-radius: 48% 48% 8px 8px / 38% 38% 8px 8px;
+    border: 2px dashed rgba(255,244,232,.7); background: rgba(255,244,232,.08);
+    display: grid; place-items: center; text-align: center; font-size: 14px; letter-spacing: .08em;
+  }
+  .title {
+    position: absolute; left: 50%; bottom: 6vh; transform: translateX(-50%);
+    font-family: 'Great Vibes', cursive; font-size: clamp(56px, 11vw, 150px); line-height: 1; white-space: nowrap;
+    color: var(--ink); text-shadow: 0 3px 0 rgba(0,0,0,.35);
+  }
+  .tag { position: absolute; top: 20px; left: 20px; font-size: 13px; line-height: 1.4; color: var(--hair); }
+  .vert { position: absolute; right: 16px; top: 50%; transform: rotate(90deg) translateX(50%); transform-origin: right; font-size: 11px; letter-spacing: .3em; color: var(--hair); }
+  /* a long thin arrow after the word, so under it on screen and pointing down, nudging to prompt a
+     scroll; out of the flow, so the word stays where it was */
+  .vert .arrow { position: absolute; left: calc(100% + 8px); top: 50%; width: 120px; height: 1px;
+    background: linear-gradient(to right, transparent, currentColor 35%); animation: nudge 2.4s ease-in-out infinite; }
+  .vert .arrow::after { content: ''; position: absolute; right: 1px; top: -3.5px; width: 8px; height: 8px;
+    border-top: 1px solid; border-right: 1px solid; transform: rotate(45deg); }
+  @keyframes nudge { 50% { transform: translateX(10px); } }
+  @media (prefers-reduced-motion: reduce) { .vert .arrow { animation: none; } }
+</style>
+</head>
+<body>
+<div class="hero" id="hero">
+  <div class="stage" id="stage">
+    <canvas id="bg"></canvas>
+    <div class="tag">Isha Zaheer<br>AI software engineer · artist</div>
+    <div class="vert">SCROLL<span class="arrow" aria-hidden="true"></span></div>
+    <div class="camera" id="camera">
+      <canvas id="me" width="1122" height="1402" aria-label="Animated portrait of Isha"></canvas>
+      <canvas class="focus" id="focus"></canvas>
+      <div class="stickers" id="stickers"></div>
+    </div>
+    <aside class="card" id="card" aria-live="polite"></aside>
+  </div>
+</div>
+
+
+
+<script type="module">
+// Prepared once from the original portrait: no model downloads or segmentation
+// on the opening screen. All the images start loading together.
+import { animatePortrait, preparePortrait } from './portrait-anim.js?v=round-iris-6';
+const load = async src => { const image = new Image(); image.src = src; await image.decode(); return image; };
+const me = document.getElementById('me');
+const images = Promise.all([
+  load('assets/portrait-cutout.webp'), load('assets/hair-mask.png'), load('assets/eye-mask.png?v=upper-lash-20261027'), load('assets/eye-geometry.png?v=upper-lash-20261027'),
+]);
+images.catch(() => {});
+try {
+  // the GPU context and shader get ready while the images download, once the sticker script
+  // below has started its own downloads
+  await new Promise(resolve => setTimeout(resolve));
+  preparePortrait(me);
+  const [cutout, hair, eyes, geometry] = await images;
+  window.portrait = animatePortrait(me, cutout, hair, eyes, geometry);
+} catch (error) {
+  // The CSS cutout remains visible if WebGL is unavailable.
+  console.error('Portrait animation could not start:', error);
+}
+</script>
+<script type="module">
+// Stickers are anchored to the face using source coordinates from stickers/set.js and peel on
+// hover. Scrolling through the hero flies a camera in 3D: first in on the whole face for stop 00
+// (About me), then from sticker to sticker (TOUR in stickers/set.js, NYU Gallatin first), with a
+// card for each; clicking a sticker flies straight to it. While the camera rests on a sticker, a
+// sharp copy of it covers the face texture's soft one.
+import { mountPeel } from './stickers/sticker.js?v=skin-stickers-7';
+import { loadBakedSticker } from './stickers/baked.js?v=fast-1';
+import { STICKERS, TOUR, CARDS, INTRO } from './stickers/set.js?v=cards-5';
+import { createSkinSurface, deepShadow, shadeMap, SURFACE_RECT } from './stickers/skin-surface.js?v=fast-1';
+
+const W = 1122, H = 1402;
+const layer = document.getElementById('stickers');
+layer.dataset.expected = String(STICKERS.filter(s=>s.onFace).length);
+const hero = document.getElementById('hero'), stage = document.getElementById('stage');
+const camera = document.getElementById('camera'), focus = document.getElementById('focus');
+const card = document.getElementById('card');
+const me = document.getElementById('me'), bg = document.getElementById('bg');
+const overlays = [...document.querySelectorAll('.tag, .vert')];
+const placed = [];
+const surface = createSkinSurface();
+const clamp = v => Math.max(0, Math.min(1, v));
+const ease = t => t * t * (3 - 2 * t);
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+// the stops: 00 (the whole face), then the tour stickers that are on the face; one screen of
+// scrolling each. Shot 0 is the whole face, shot k the tour's k-th sticker.
+const tour = TOUR.filter(label => STICKERS.some(st => st.onFace && st.label === label));
+hero.style.height = (tour.length + 3) * 100 + 'vh';
+const FACE_CENTRE = [585, 555];
+const stops = [];
+// camera state: the smoothed scroll position, the card shown, the sharp close-ups drawn so far
+let ready = false, qs = scrollY / innerHeight, last = performance.now(), carded = -1, sharpShown = -1;
+const sharp = new Map();
+attachToFace();
+
+// the skin's lighting: stickers marked `shadow` sit in the hair's shadow, and the sharp
+// close-ups are lit like the face texture's stickers
+const portrait = new Image(); portrait.src = 'assets/portrait-cutout.webp'; await portrait.decode();
+// the stickers download once the portrait is in, so on a slow connection the face comes first
+const prepared = STICKERS.map((st, index) => st.onFace ? loadBakedSticker(index) : null);
+const shadowMap = deepShadow(portrait), lighting = {};
+const lit = deep => (lighting[deep] ??= shadeMap(portrait, deep));
+for (const [index, st] of STICKERS.entries()) {
+  if (!st.onFace) continue;
+  const s = await prepared[index];
+  const el = document.createElement(st.still ? 'div' : 'a');
+  el.className = 'stk' + (st.still ? ' still' : '');
+  if (!st.still) { el.href = '#' + st.to; el.setAttribute('aria-label', st.tip); }
+  el.dataset.sticker = st.label;
+  el.style.setProperty('--tilt', st.tilt + 'deg');
+  const c = document.createElement('canvas');
+  el.append(c);
+  if (st.tip) { const tip = document.createElement('span'); tip.className = 'tip'; tip.textContent = st.tip; el.append(tip); }
+  layer.append(el);
+  let skin;
+  const peel = mountPeel(c, s, { still: st.still, max: .08, onDraw:()=>surface.invalidate(skin) });
+  const heightScale=st.heightScale ?? 1;
+  skin=surface.add(c,st.face,st.tilt,heightScale,st.shadow ? shadowMap : null);
+  const sticker = { st, el, peel, skin, canvas: c, aspect: s.h/s.w*heightScale, anchor: st.face.slice(0, 2), width: st.face[2] };
+  placed.push(sticker);
+  // a click flies the camera to the sticker; its card links on to the section
+  const stop = tour.indexOf(st.label);
+  if (stop >= 0) { stops[stop] = sticker; el.addEventListener('click', e => { e.preventDefault(); goTo(stop); }); }
+  requestAnimationFrame(() => el.classList.add('ready'));
+}
+layer.dataset.loaded = 'true';
+ready = tour.length > 0;
+
+// Each stop's close-up is drawn in spare moments after loading, in tour order, so the camera
+// never waits for one when it arrives (the shot's zoom doesn't depend on where the bust is).
+// Taking a bitmap of it makes the graphics card do the drawing now rather than on arrival.
+const idle = window.requestIdleCallback ?? (next => setTimeout(next, 30));
+(function warm(k = 0) {
+  if (k >= stops.length) return;
+  idle(() => {
+    const p = stops[k], L = layout();
+    // not while the sticker is peeling under the pointer: the close-up would keep the peel
+    if (p?.el.matches(':hover')) return setTimeout(() => warm(k), 1000);
+    if (p) {
+      const key = sharpArt(p, shot(p, p.anchor, L).zoom, L);
+      createImageBitmap(sharp.get(key)).then(bitmap => sharp.set(key, bitmap), () => {});
+    }
+    warm(k + 1);
+  });
+})();
+
+// to the tour's stop-th sticker, which is shot stop + 1
+function goTo(stop) {
+  scrollTo({ top: hero.offsetTop + (stop + 2) * innerHeight, behavior: reduce ? 'auto' : 'smooth' });
+}
+
+// Where portrait pixels sit inside the camera (the stage at rest): the canvas is centred at the
+// bottom and keeps the portrait's shape (object-fit: contain). Layout sizes ignore transforms.
+function layout() {
+  const ow = me.offsetWidth, oh = me.offsetHeight, s0 = Math.min(ow / W, oh / H);
+  return { s0, left: (stage.clientWidth - W * s0) / 2, top: stage.clientHeight - H * s0 };
+}
+function at(L, [x, y]) { return [L.left + x * L.s0, L.top + y * L.s0]; }
+
+// The camera on one sticker: that point of the face comes to `to` on screen, zoomed so the
+// sticker fills about a third of the view, and turned a little toward it, like orbiting the head.
+function shot(p, point, L) {
+  const [x, y] = p.anchor, size = p.width * Math.max(1, p.aspect) * L.s0, wide = innerWidth > 760;
+  const want = wide ? Math.min(innerWidth * .3, innerHeight * .46) : Math.min(innerWidth * .62, innerHeight * .3);
+  return {
+    at: at(L, point),
+    to: wide ? [innerWidth * .34, innerHeight * .5] : [innerWidth * .5, innerHeight * .36],
+    zoom: Math.max(1.6, Math.min(9, want / size)),
+    turnY: Math.max(-16, Math.min(16, (600 - x) / 250 * 14)),
+    turnX: Math.max(-12, Math.min(12, (y - 540) / 250 * 12)),
+  };
+}
+// Stop 00: in on the whole face, not one sticker, so the face fills about half the view
+function wholeFace(point, L) {
+  const size = 430 * L.s0, wide = innerWidth > 760;
+  const want = wide ? Math.min(innerWidth * .5, innerHeight * .8) : Math.min(innerWidth * .9, innerHeight * .5);
+  return {
+    at: at(L, point),
+    to: wide ? [innerWidth * .32, innerHeight * .5] : [innerWidth * .5, innerHeight * .34],
+    zoom: Math.max(1.3, Math.min(3, want / size)), turnY: 6, turnX: 0,
+  };
+}
+function rest(s) { return { ...s, to: s.at, zoom: 1, turnY: 0, turnX: 0 }; }
+// between two shots: pan across the face, pulling back a little halfway (dip)
+function between(a, b, t, dip = 0) {
+  const lerp = (u, v) => u + (v - u) * t;
+  return {
+    at: [lerp(a.at[0], b.at[0]), lerp(a.at[1], b.at[1])], to: [lerp(a.to[0], b.to[0]), lerp(a.to[1], b.to[1])],
+    zoom: Math.exp(lerp(Math.log(a.zoom), Math.log(b.zoom))) * (1 - dip * Math.sin(Math.PI * t)),
+    turnY: lerp(a.turnY, b.turnY), turnX: lerp(a.turnX, b.turnX),
+  };
+}
+// how settled the camera is on a stop, from how far (in screens) the scroll is from it
+function dwell(d) { return 1 - clamp((Math.abs(d) - .18) / .12); }
+// Scroll position q, in screens: the first stop is one screen down, then one per screen. The
+// camera rests on each for a while, and after the last it pulls back out to the whole face.
+function cameraAt(q, shots) {
+  const n = shots.length, u = q - 1;
+  if (u <= 0) return { view: between(rest(shots[0]), shots[0], ease(clamp((q - .15) / .7))), stop: 0, focus: dwell(u) };
+  if (u >= n - 1) return { view: between(shots[n - 1], rest(shots[n - 1]), ease(clamp((u - n + 1 - .3) / .6))), stop: n - 1, focus: dwell(u - n + 1) };
+  const k = Math.floor(u), near = Math.round(u);
+  return { view: between(shots[k], shots[k + 1], ease(clamp((u - k - .25) / .5)), .28), stop: near, focus: dwell(u - near) };
+}
+
+// the card for shot k: 00 is About me; a sticker's is its entry in CARDS, or failing that its tip
+// ("Title · line → Section")
+function showCard(k) {
+  if (k === carded) return;
+  carded = k;
+  const st = k > 0 ? stops[k - 1].st : { label: INTRO, to: 'about', tip: INTRO + ' → About' };
+  const [main, section] = st.tip.split(' → '), [title, ...lines] = main.split(' · ');
+  const entry = CARDS[st.label] ?? { title, points: lines };
+  const make = (tag, className, text) => { const e = document.createElement(tag); e.className = className; e.textContent = text; return e; };
+  const count = String(k).padStart(2, '0') + ' / ' + String(tour.length).padStart(2, '0');
+  const list = document.createElement('ul');
+  for (const point of entry.points ?? []) list.append(make('li', '', point));
+  // the link on to the sticker's section, only while that section is on the page
+  const link = make('a', '', '→ ' + (section ?? 'More')); link.href = '#' + st.to;
+  card.replaceChildren(make('p', 'count', entry.when ? count + ' · ' + entry.when : count),
+    make('h3', '', entry.title), ...(entry.role ? [make('p', 'role', entry.role)] : []), list,
+    ...(document.getElementById(st.to) ? [link] : []));
+}
+
+// the sharp close-up, drawn once per sticker at the resolution its shot needs
+function sharpArt(p, zoom, L) {
+  const k = Math.min(8, L.s0 * zoom * (devicePixelRatio || 1)), key = p.st.label + '@' + k.toFixed(2);
+  if (!sharp.has(key)) sharp.set(key, surface.sharp(p.skin, k, lit(!!p.st.shadow)));
+  return key;
+}
+function showSharp(p, zoom, L) {
+  const key = sharpArt(p, zoom, L);
+  if (sharpShown !== key) {
+    const art = sharp.get(key);
+    focus.width = art.width; focus.height = art.height;
+    focus.getContext('2d').drawImage(art, 0, 0);
+    sharpShown = key;
+  }
+}
+
+function attachToFace(now = performance.now()) {
+  if(window.portrait?.setDecals && surface.dirty) {
+    window.portrait.setDecals(surface.render(),SURFACE_RECT);
+    layer.classList.add('skin-bound');
+  }
+  const L = layout();
+  // the anchors as the bust moves them, so links, close-ups and the camera stay on the stickers
+  const moved = window.portrait?.bustPoints(placed.map(s => s.anchor)) ?? placed.map(s => s.anchor);
+  for (let i=0;i<placed.length;i++) {
+    const s=placed[i], [x,y]=at(L, moved[i]);
+    s.el.style.left=x+'px'; s.el.style.top=y+'px'; s.el.style.width=s.width*L.s0+'px';
+    s.canvas.style.height=s.width*L.s0*s.aspect+'px';
+  }
+  if (ready) {
+    const dt = Math.min(.1, (now - last) / 1000), q = scrollY / innerHeight;
+    qs = reduce || Math.abs(q - qs) < 1e-4 ? q : qs + (q - qs) * (1 - Math.exp(-dt / .12));
+    const face = window.portrait?.bustPoints([FACE_CENTRE])[0] ?? FACE_CENTRE;
+    const shots = [wholeFace(face, L), ...stops.map(p => shot(p, moved[placed.indexOf(p)], L))];
+    const { view, stop, focus: f } = cameraAt(qs, shots);
+    camera.style.transform = `translate(${view.to[0]}px, ${view.to[1]}px) rotateY(${view.turnY}deg) rotateX(${view.turnX}deg) `
+      + `scale(${view.zoom}) translate(${-view.at[0]}px, ${-view.at[1]}px)`;
+    // the background drifts out of focus as the camera closes in
+    const z = clamp((view.zoom - 1) / 2);
+    bg.style.transform = `scale(${1 + .08 * z})`;
+    bg.style.filter = z > .01 ? `blur(${(z * 6).toFixed(1)}px)` : '';
+    stage.classList.toggle('zoomed', z > .05);
+    // the sticker in focus: its card, and its sharp copy right over it
+    showCard(stop);
+    card.style.opacity = f;
+    card.style.transform = (innerWidth > 760 ? 'translateY(-50%) ' : '') + `translateY(${(1 - f) * 12}px)`;
+    card.classList.toggle('on', f > .5);
+    if (f > 0 && stop > 0) {
+      const p = stops[stop - 1], e = p.skin, i = placed.indexOf(p);
+      showSharp(p, shots[stop].zoom, L);
+      const [x, y] = at(L, [e.left + moved[i][0] - p.anchor[0], e.top + moved[i][1] - p.anchor[1]]);
+      Object.assign(focus.style, { left: x + 'px', top: y + 'px', width: e.patch.width * L.s0 + 'px', height: e.patch.height * L.s0 + 'px' });
+    }
+    focus.style.opacity = stop > 0 ? f : 0;
+  }
+  requestAnimationFrame(attachToFace);
+}
+</script>
+<script src="delaunay.js"></script>
+<script type="module">
+import { startSkyline } from './skyline.js?v=pink-1';
+startSkyline(document.getElementById('bg'));
+</script>
+</body>
+</html>
