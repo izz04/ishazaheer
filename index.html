@@ -13,7 +13,7 @@
 <link rel="modulepreload" href="portrait-anim.js?v=round-iris-6">
 <link rel="modulepreload" href="stickers/sticker.js?v=skin-stickers-7">
 <link rel="modulepreload" href="stickers/baked.js?v=fast-1">
-<link rel="modulepreload" href="stickers/set.js?v=cards-6">
+<link rel="modulepreload" href="stickers/set.js?v=cards-7">
 <link rel="modulepreload" href="stickers/skin-surface.js?v=fast-1">
 <link rel="modulepreload" href="skyline.js?v=pink-1">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -55,8 +55,10 @@
     .card { left: 16px; right: 16px; top: auto; bottom: 18px; width: auto; transform: none; }
   }
   /* the Artist card's way into the gallery: a chip per room and one clear button */
-  .card .rooms { display: flex; flex-wrap: wrap; gap: 6px; margin: -6px 0 16px; }
-  .card .rooms a { padding: 5px 11px; border: 1px solid rgba(255,244,232,.45); border-radius: 99px; font-size: 13px; font-weight: 400; text-decoration: none; }
+  .card .about { margin: 0 0 14px; font-size: 14px; line-height: 1.5; opacity: .9; }
+  .card .rooms { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 16px 0 0; }
+  .card .rooms span { width: 100%; font-size: 13px; opacity: .75; }
+  .card .rooms a { padding: 4px 10px; border: 1px solid rgba(255,244,232,.45); border-radius: 99px; font-size: 13px; font-weight: 400; text-decoration: none; }
   .card .rooms a:hover { background: rgba(255,244,232,.16); }
   .card .enter { display: inline-block; padding: 11px 18px; border-radius: 99px; background: var(--ink); color: #14201a; font-size: 15px; text-decoration: none; }
   .card .enter:hover { filter: brightness(1.08); }
@@ -175,7 +177,7 @@ try {
 // sharp copy of it covers the face texture's soft one.
 import { mountPeel } from './stickers/sticker.js?v=skin-stickers-7';
 import { loadBakedSticker } from './stickers/baked.js?v=fast-1';
-import { STICKERS, TOUR, CARDS, INTRO } from './stickers/set.js?v=cards-6';
+import { STICKERS, TOUR, CARDS, INTRO } from './stickers/set.js?v=cards-7';
 import { createSkinSurface, deepShadow, shadeMap, SURFACE_RECT } from './stickers/skin-surface.js?v=fast-1';
 
 const W = 1122, H = 1402;
@@ -342,12 +344,14 @@ function showCard(k) {
   const link = make('a', '', '→ ' + (section ?? 'More')); link.href = '#' + st.to;
   // the Artist card leads into the walkable gallery: a chip for each room, and the way in
   const extras = [];
+  if (entry.about) extras.push(make('p', 'about', entry.about));
+  if (entry.enter) { const enter = make('a', 'enter', entry.enter.text + ' →'); enter.href = entry.enter.href; extras.push(enter); }
   if (entry.rooms) {
     const chips = make('p', 'rooms', '');
+    chips.append(make('span', '', 'Rooms:'));
     for (const [name, id] of entry.rooms) { const chip = make('a', '', name); chip.href = entry.enter.href + '#room/' + id; chips.append(chip); }
     extras.push(chips);
   }
-  if (entry.enter) { const enter = make('a', 'enter', entry.enter.text + ' →'); enter.href = entry.enter.href; extras.push(enter); }
   card.replaceChildren(make('p', 'count', entry.when ? count + ' · ' + entry.when : count),
     make('h3', '', entry.title), ...(entry.role ? [make('p', 'role', entry.role)] : []), list, ...extras,
     ...(document.getElementById(st.to) ? [link] : []));

@@ -118,8 +118,10 @@ export const CARDS = {
       'Design Tools: Adobe Illustrator, Photoshop, After Effects, Premiere Pro, PTGui'] },
   'Palette': { when: '', title: 'ARTIST',
     role: 'Paintings, drawings and lettering',
-    points: ['Art Styles:'],
-    // the walkable gallery (gallery/): one chip per room, and the way in
+    points: ['Art skills: drawing, painting (acrylic and watercolor), ceramics, printmaking, digital software (Adobe Creative Cloud, Blender)'],
+    // what the gallery is, above the way in
+    about: 'My work hangs in a walkable 3D gallery. Stroll from room to room around a courtyard that follows New York’s real time and weather, and step up to any piece for a closer look.',
+    // the walkable gallery (gallery/): the way in, then one chip per room
     rooms: [['Seasons', '01'], ['Illuminae', '02'], ['Delineations', '03'], ['Liberty', '04'], ['WPAP', '05'], ['Lettering', '06'], ['The Copy', '07']],
     enter: { text: 'Walk through the gallery', href: 'gallery/' } },
   'Achievements': { when: 'Scholarships', title: 'Achievements', role: 'NYU Gallatin',
