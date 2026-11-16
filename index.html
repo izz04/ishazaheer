@@ -33,8 +33,11 @@
   canvas#bg { will-change: transform, filter; }
   /* the portrait and its stickers move together as the camera's subject */
   .camera { position: absolute; inset: 0; z-index: 2; transform-origin: 0 0; }
-  /* a sharp copy of the sticker the camera rests on, over the face texture's soft one */
+  /* a sharp copy of each sticker, over the face texture's soft one, whenever the camera is in close */
   .focus { position: absolute; z-index: 3; pointer-events: none; opacity: 0; }
+  /* scrolling comes to rest on a sticker, never between two: one stop per screen of the hero */
+  html { scroll-snap-type: y mandatory; }
+  .hero .snap { position: absolute; left: 0; width: 1px; height: 1px; scroll-snap-align: start; pointer-events: none; }
   .tag, .vert { transition: opacity .3s; }
   .stage.zoomed .tag, .stage.zoomed .vert { opacity: 0; }
   .stage.zoomed .stk .tip { display: none; }
@@ -225,6 +228,11 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 // scrolling each. Shot 0 is the whole face, shot k the tour's k-th sticker.
 const tour = TOUR.filter(label => STICKERS.some(st => st.onFace && st.label === label));
 hero.style.height = (tour.length + 3) * 100 + 'vh';
+// where scrolling comes to rest: the top, each stop, and the end (the camera reads the scroll in
+// screens of innerHeight, so the stops are set in the same measure)
+const snaps = Array.from({ length: tour.length + 3 }, () => hero.appendChild(Object.assign(document.createElement('i'), { className: 'snap' })));
+const setSnaps = () => snaps.forEach((snap, k) => { snap.style.top = k * innerHeight + 'px'; });
+setSnaps(); addEventListener('resize', setSnaps);
 const FACE_CENTRE = [585, 555];
 const stops = [];
 // camera state: the smoothed scroll position, the card shown, the sharp close-ups drawn so far
@@ -251,11 +259,14 @@ for (const [index, st] of STICKERS.entries()) {
   el.append(c);
   if (st.tip) { const tip = document.createElement('span'); tip.className = 'tip'; tip.textContent = st.tip; el.append(tip); }
   layer.append(el);
-  let skin;
-  const peel = mountPeel(c, s, { still: st.still, max: .08, onDraw:()=>surface.invalidate(skin) });
+  let skin, sticker;
+  const peel = mountPeel(c, s, { still: st.still, max: .08, onDraw:()=>{ surface.invalidate(skin); if (sticker) sticker.drawn = performance.now(); } });
   const heightScale=st.heightScale ?? 1;
   skin=surface.add(c,st.face,st.tilt,heightScale,st.shadow ? shadowMap : null);
-  const sticker = { st, el, peel, skin, canvas: c, aspect: s.h/s.w*heightScale, anchor: st.face.slice(0, 2), width: st.face[2] };
+  const fine = document.createElement('canvas');
+  fine.className = 'focus';
+  camera.insertBefore(fine, layer);
+  sticker = { st, el, peel, skin, canvas: c, aspect: s.h/s.w*heightScale, anchor: st.face.slice(0, 2), width: st.face[2], fine, fineKey: '', drawn: 0 };
   placed.push(sticker);
   // a click flies the camera to the sticker; its card links on to the section
   const stop = tour.indexOf(st.label);
@@ -280,23 +291,7 @@ card.addEventListener('click', e => {
 });
 addEventListener('pageshow', () => document.documentElement.classList.remove('leaving'));
 
-// Each stop's close-up is drawn in spare moments after loading, in tour order, so the camera
-// never waits for one when it arrives (the shot's zoom doesn't depend on where the bust is).
-// Taking a bitmap of it makes the graphics card do the drawing now rather than on arrival.
 const idle = window.requestIdleCallback ?? (next => setTimeout(next, 30));
-(function warm(k = 0) {
-  if (k >= stops.length) return;
-  idle(() => {
-    const p = stops[k], L = layout();
-    // not while the sticker is peeling under the pointer: the close-up would keep the peel
-    if (p?.el.matches(':hover')) return setTimeout(() => warm(k), 1000);
-    if (p) {
-      const key = sharpArt(p, shot(p, p.anchor, L).zoom, L);
-      createImageBitmap(sharp.get(key)).then(bitmap => sharp.set(key, bitmap), () => {});
-    }
-    warm(k + 1);
-  });
-})();
 
 // to the tour's stop-th sticker, which is shot stop + 1
 function goTo(stop) {
@@ -385,20 +380,31 @@ function showCard(k) {
     ...(document.getElementById(st.to) ? [link] : []));
 }
 
-// the sharp close-up, drawn once per sticker at the resolution its shot needs
-function sharpArt(p, zoom, L) {
-  const k = Math.min(8, L.s0 * zoom * (devicePixelRatio || 1)), key = p.st.label + '@' + k.toFixed(2);
-  if (!sharp.has(key)) sharp.set(key, surface.sharp(p.skin, k, lit(!!p.st.shadow)));
-  return key;
-}
-function showSharp(p, zoom, L) {
-  const key = sharpArt(p, zoom, L);
-  if (sharpShown !== key) {
-    const art = sharp.get(key);
-    focus.width = art.width; focus.height = art.height;
-    focus.getContext('2d').drawImage(art, 0, 0);
-    sharpShown = key;
+// Each sticker's sharp copy: its curved patch drawn finely enough for the closest the camera comes
+// to it, which is its own shot if it is a stop, or the shot of a stop beside it. Made in a spare
+// moment (not while the sticker is peeling: the copy would keep the peel) and again if the window
+// changes size; until a new one is ready the old one stays.
+function fineness(p, L) {
+  let zoom = 0;
+  for (const stop of stops) {
+    if (!stop) continue;
+    if (stop === p || Math.hypot(stop.anchor[0] - p.anchor[0], stop.anchor[1] - p.anchor[1]) < 260) zoom = Math.max(zoom, shot(stop, stop.anchor, L).zoom);
   }
+  return Math.min(8, L.s0 * (zoom || 3) * (devicePixelRatio || 1));
+}
+const peeling = (p, now) => p.el.matches(':hover') || now - p.drawn < 700;
+function sharpen(p, L) {
+  const k = fineness(p, L), key = k.toFixed(2);
+  if (p.fineKey === key || p.finePending === key) return;
+  p.finePending = key;
+  idle(function draw() {
+    if (p.finePending !== key) return;
+    if (peeling(p, performance.now())) return void setTimeout(() => idle(draw), 800);
+    const art = surface.sharp(p.skin, k, lit(!!p.st.shadow));
+    p.fine.width = art.width; p.fine.height = art.height;
+    p.fine.getContext('2d').drawImage(art, 0, 0);
+    p.fineKey = key; p.finePending = '';
+  });
 }
 
 function attachToFace(now = performance.now()) {
@@ -427,18 +433,21 @@ function attachToFace(now = performance.now()) {
     bg.style.transform = `scale(${1 + .08 * z})`;
     bg.style.filter = z > .01 ? `blur(${(z * 6).toFixed(1)}px)` : '';
     stage.classList.toggle('zoomed', z > .05);
-    // the sticker in focus: its card, and its sharp copy right over it
+    // the sticker in focus: its card
     showCard(stop);
     card.style.opacity = f;
     card.style.transform = (innerWidth > 760 ? 'translateY(-50%) ' : '') + `translateY(${(1 - f) * 12}px)`;
     card.classList.toggle('on', f > .5);
-    if (f > 0 && stop > 0) {
-      const p = stops[stop - 1], e = p.skin, i = placed.indexOf(p);
-      showSharp(p, shots[stop].zoom, L);
+    // every sticker's sharp copy sits right over it, and shows from the moment the camera starts in
+    // until it is back out, so stickers stay crisp on the way between stops as well as at them
+    const close = clamp((view.zoom - 1.04) / .22);
+    for (let i = 0; i < placed.length; i++) {
+      const p = placed[i], e = p.skin;
+      sharpen(p, L);
       const [x, y] = at(L, [e.left + moved[i][0] - p.anchor[0], e.top + moved[i][1] - p.anchor[1]]);
-      Object.assign(focus.style, { left: x + 'px', top: y + 'px', width: e.patch.width * L.s0 + 'px', height: e.patch.height * L.s0 + 'px' });
+      Object.assign(p.fine.style, { left: x + 'px', top: y + 'px', width: e.patch.width * L.s0 + 'px', height: e.patch.height * L.s0 + 'px',
+        opacity: p.fineKey && !peeling(p, now) ? close : 0 });
     }
-    focus.style.opacity = stop > 0 ? f : 0;
   }
   requestAnimationFrame(attachToFace);
 }
