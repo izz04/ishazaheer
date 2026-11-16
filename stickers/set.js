@@ -122,7 +122,7 @@ export const CARDS = {
     // what the gallery is, above the way in
     about: 'My work hangs in a walkable 3D gallery. Stroll from room to room around a courtyard that follows New York’s real time and weather, and step up to any piece for a closer look.',
     // the walkable gallery (gallery/): the way in, then one chip per room
-    rooms: [['Seasons', '01'], ['Illuminae', '02'], ['Delineations', '03'], ['Liberty', '04'], ['WPAP', '05'], ['Lettering', '06'], ['The Copy', '07']],
+    rooms: [['Seasons', '01'], ['Illuminae', '02'], ['Delineations', '03'], ['Liberty', '04'], ['WPAP', '05'], ['Lettering', '06'], ['The Copy', '07'], ['Printmaking', '08']],
     enter: { text: 'Walk through the gallery', href: 'gallery/' } },
   'Achievements': { when: 'Scholarships', title: 'Achievements', role: 'NYU Gallatin',
     points: ['Full NYU Gallatin Scholarship Awardee', 'Gallatin Futures Scholar ($10,000/year for 4 years)',

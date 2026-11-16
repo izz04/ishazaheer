@@ -214,9 +214,22 @@
     },
     {
       "id": "08",
-      "title": "Coming soon",
+      "title": "Printmaking",
       "caption": "",
-      "works": []
+      "works": [
+        {
+          "id": "08-1",
+          "title": "Queen of Hearts",
+          "caption": "",
+          "image": "collection/printmaking/1.jpg"
+        },
+        {
+          "id": "08-2",
+          "title": "Under a Lucknow Arch",
+          "caption": "",
+          "image": "collection/printmaking/2.jpg"
+        }
+      ]
     }
   ]
 }
