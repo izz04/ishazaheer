@@ -374,13 +374,83 @@ export function createRing(THREE, scene, rooms) {
     walls.push({ angle: a, group: wall });
   }
 
-  // the way out: a bright opening in the outer wall (the walk starts inside room 01, with no door)
-  const light = painted(daylight());
+  // the way out: a doorway onto a night sky (the walk starts inside room 01, with no door). Deep
+  // night at the top deepens through plum to a faint ember glow low down, as if something waits
+  // beyond; stars twinkle, mist drifts across in front of them and lies thick along the bottom, a
+  // few gold motes rise through it, and some of the mist creeps out over the threshold.
+  const night = new THREE.ShaderMaterial({
+    uniforms: { time: { value: 0 } },
+    vertexShader: 'varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }',
+    fragmentShader: `
+      varying vec2 vUv; uniform float time;
+      float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      float noise(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f);
+        return mix(mix(hash(i), hash(i + vec2(1., 0.)), f.x), mix(hash(i + vec2(0., 1.)), hash(i + vec2(1., 1.)), f.x), f.y); }
+      float fbm(vec2 p) { float v = 0., a = .5; for (int i = 0; i < 4; i++) { v += a * noise(p); p = p * 2.03 + 7.1; a *= .5; } return v; }
+      void main() {
+        vec2 uv = vUv, p = vec2(uv.x * 2.8, uv.y * 4.6);
+        vec3 col = mix(vec3(.17, .07, .2), vec3(.06, .035, .14), smoothstep(0., .4, uv.y));
+        col = mix(col, vec3(.01, .012, .045), smoothstep(.3, 1., uv.y));
+        col += vec3(.09, .04, .15) * smoothstep(.45, .85, fbm(p * .9 + vec2(time * .03, -time * .02))) * (1. - uv.y * .6);
+        // mist: two sheets of it sliding past each other, thickest near the ground
+        float low = exp(-uv.y * 2.6);
+        float mist = smoothstep(.38, .78, fbm(p * vec2(.75, 1.7) + vec2(time * .06, time * .012)));
+        mist = max(mist * (.3 + .7 * low), smoothstep(.42, .8, fbm(p * vec2(1.3, 2.6) - vec2(time * .045, 0.) + 9.)) * (.16 + .84 * low));
+        mist = clamp(mist + low * .22, 0., 1.);
+        // stars: one in some cells of a grid, each with its own slow twinkle
+        for (int layer = 0; layer < 2; layer++) {
+          float size = layer == 0 ? 9. : 17.;
+          vec2 g = p * size, cell = floor(g), spot = cell + .2 + .6 * vec2(hash(cell + 3.), hash(cell + 9.));
+          float born = hash(cell + float(layer) * 31.), d = length(g - spot);
+          float twinkle = .55 + .45 * sin(time * (.6 + born * 2.2) + born * 40.);
+          col += vec3(1., .95, .86) * step(.62, born) * smoothstep(.16, 0., d) * twinkle * (.35 + .65 * smoothstep(.05, .5, uv.y)) * (layer == 0 ? .9 : .5) * (1. - mist * .85);
+        }
+        // the glow low in the doorway, and motes drifting up out of it
+        col += vec3(.9, .45, .38) * exp(-uv.y * 5.5) * .3 * exp(-pow((uv.x - .5) * 2.2, 2.));
+        col = mix(col, vec3(.3, .26, .42) + vec3(.2, .1, .08) * low, mist * .6);
+        for (int i = 0; i < 9; i++) {
+          float k = float(i), rise = fract(hash(vec2(k, 1.)) + time * (.018 + .02 * hash(vec2(k, 2.))));
+          vec2 spot = vec2(.12 + .76 * hash(vec2(k, 3.)) + .03 * sin(time * .5 + k * 2.), rise);
+          float d = length((uv - spot) * vec2(2.8, 4.6));
+          col += vec3(1., .8, .5) * (.012 / (d * d + .012)) * .13 * sin(rise * 3.1416);
+        }
+        float side = min(uv.x, 1. - uv.x);
+        col *= mix(.62, 1., smoothstep(0., .2, side)) * mix(.8, 1., smoothstep(1., .85, uv.y));
+        gl_FragColor = vec4(col, 1.);
+      }`,
+  });
+  const gilt = basic({ color: 0xc9a56a });
+  // the mist that creeps out over the threshold: a sheet of it lying on the floor, drifting, thick at
+  // the door and thinning into the room
+  const creep = new THREE.ShaderMaterial({
+    uniforms: { time: { value: 0 } }, transparent: true, depthWrite: false,
+    vertexShader: 'varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }',
+    fragmentShader: `
+      varying vec2 vUv; uniform float time;
+      float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      float noise(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f);
+        return mix(mix(hash(i), hash(i + vec2(1., 0.)), f.x), mix(hash(i + vec2(0., 1.)), hash(i + vec2(1., 1.)), f.x), f.y); }
+      float fbm(vec2 p) { float v = 0., a = .5; for (int i = 0; i < 4; i++) { v += a * noise(p); p = p * 2.03 + 7.1; a *= .5; } return v; }
+      void main() {
+        vec2 p = vec2((vUv.x - .5) * 6.4, (1. - vUv.y) * 5.2);          // metres: across the door, and out from it
+        float reach = length(p * vec2(.62, 1.)) / 4.4;
+        float fade = smoothstep(1., .08, reach) * smoothstep(.5, .36, abs(vUv.x - .5));
+        float sheet = fbm(p * vec2(.9, 1.5) + vec2(time * .07, -time * .05));
+        float wisps = fbm(p * vec2(1.9, 3.) - vec2(time * .05, time * .08) + 5.);
+        float mist = smoothstep(.3, .75, sheet * .65 + wisps * .5 + (1. - reach) * .28);
+        gl_FragColor = vec4(mix(vec3(.27, .2, .4), vec3(.16, .11, .27), wisps), mist * fade * .72);
+      }`,
+  });
   const portals = [];
   for (const [name, a, label] of [['exit', EXIT, 'EXIT']]) {
     const door = facingIn(a, R_OUT - .09);
     box(door, frameBlack, 3.1, 4.75, .1, 0, 2.375, 0);
-    addMesh(door, new THREE.PlaneGeometry(2.8, 4.6), light, 0, 2.3, .06);
+    // a thin gilt line inside the black frame, the night itself, and its mist on the floor
+    addMesh(door, new THREE.PlaneGeometry(2.88, 4.68), gilt, 0, 2.32, .055);
+    addMesh(door, new THREE.PlaneGeometry(2.8, 4.6), night, 0, 2.3, .06).onBeforeRender = () => { night.uniforms.time.value = performance.now() / 1000; };
+    const pool = addMesh(door, new THREE.PlaneGeometry(6.4, 5.2), creep, 0, .014, 2.66);
+    pool.rotation.x = -Math.PI / 2;
+    pool.onBeforeRender = () => { creep.uniforms.time.value = performance.now() / 1000; };
     addMesh(door, new THREE.PlaneGeometry(2.4, .5), painted(portalSign(label), { transparent: true }), 0, 5.25, .04);
     door.traverse(node => { node.userData.portal = name; });
     const [x, z] = at(a, R_OUT - 1.5);
