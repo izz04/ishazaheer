@@ -40,3 +40,18 @@ button,a{touch-action:manipulation}
    On a phone, where it sits in a scrolling column, it melts away at the bottom instead */
 @media(min-width:701px){#detail.with-model .model{align-self:stretch;height:auto;aspect-ratio:auto;margin:0 0 -5vh}}
 @media(max-width:700px){.model{-webkit-mask-image:linear-gradient(#000 72%,transparent 99%);mask-image:linear-gradient(#000 72%,transparent 99%)}}
+
+/* The loader, shared by the portfolio and the gallery: a sunflower drawn petal by petal in one thin
+   cream line on the dark screen the two sites fade through, with the name under it */
+.loader{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:#11110f;color:#fff4e8;transition:opacity .7s ease .15s,visibility 0s linear .9s}
+.loader.done{opacity:0;visibility:hidden;pointer-events:none}
+.loader div{display:grid;justify-items:center;gap:24px}
+.loader svg{width:clamp(60px,9vmin,88px);overflow:visible}
+.loader svg *{fill:none;stroke:currentColor;stroke-width:1.1;stroke-linecap:round}
+.loader circle{opacity:.5}
+.loader path{stroke-dasharray:1;stroke-dashoffset:1;animation:petal 4.4s ease-in-out infinite;animation-delay:calc(var(--k)*.13s)}
+@keyframes petal{0%{stroke-dashoffset:1;opacity:.85}15%{stroke-dashoffset:0}70%{stroke-dashoffset:0;opacity:.85}88%,100%{stroke-dashoffset:0;opacity:0}}
+.loader p{margin:0;font:11px/1 Arial,sans-serif;letter-spacing:.42em;text-indent:.42em;text-transform:uppercase;text-align:center;opacity:.8}
+.loader small{display:block;margin-top:11px;font:italic 13px/1 Georgia,serif;letter-spacing:.06em;text-indent:0;text-transform:none;opacity:.75}
+@media(prefers-reduced-motion:reduce){.loader path{animation:none;stroke-dashoffset:0;opacity:.85}}
+#loading.loader{color:#fff4e8}

@@ -66,7 +66,6 @@
   /* the dark screen between the portfolio and the gallery */
   html::after { content: ''; position: fixed; inset: 0; z-index: 99; background: #11110f; opacity: 0; pointer-events: none; transition: opacity .34s ease; }
   html.leaving::after { opacity: 1; pointer-events: auto; }
-  html.arriving::after { opacity: 1; transition: none; }
 
   /* Small face stickers, projected from the portrait's original coordinates. */
   .stickers { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
@@ -128,10 +127,33 @@
     border-top: 1px solid; border-right: 1px solid; transform: rotate(45deg); }
   @keyframes nudge { 50% { transform: translateX(10px); } }
   @media (prefers-reduced-motion: reduce) { .vert .arrow { animation: none; } }
+  /* The loader, shared by the portfolio and the gallery: a sunflower drawn petal by petal in one thin
+     cream line on the dark screen the two sites fade through, with the name under it */
+  .loader{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:#11110f;color:#fff4e8;transition:opacity .7s ease .15s,visibility 0s linear .9s}
+  .loader.done{opacity:0;visibility:hidden;pointer-events:none}
+  .loader div{display:grid;justify-items:center;gap:24px}
+  .loader svg{width:clamp(60px,9vmin,88px);overflow:visible}
+  .loader svg *{fill:none;stroke:currentColor;stroke-width:1.1;stroke-linecap:round}
+  .loader circle{opacity:.5}
+  .loader path{stroke-dasharray:1;stroke-dashoffset:1;animation:petal 4.4s ease-in-out infinite;animation-delay:calc(var(--k)*.13s)}
+  @keyframes petal{0%{stroke-dashoffset:1;opacity:.85}15%{stroke-dashoffset:0}70%{stroke-dashoffset:0;opacity:.85}88%,100%{stroke-dashoffset:0;opacity:0}}
+  .loader p{margin:0;font:11px/1 Arial,sans-serif;letter-spacing:.42em;text-indent:.42em;text-transform:uppercase;text-align:center;opacity:.8}
+  .loader small{display:block;margin-top:11px;font:italic 13px/1 Georgia,serif;letter-spacing:.06em;text-indent:0;text-transform:none;opacity:.75}
+  @media(prefers-reduced-motion:reduce){.loader path{animation:none;stroke-dashoffset:0;opacity:.85}}
 </style>
 </head>
 <body>
-<script>if (location.hash === "#artist") { document.documentElement.classList.add("arriving"); setTimeout(function () { document.documentElement.classList.remove("arriving"); }, 4000); }</script>
+<div id="loader" class="loader" role="status" aria-label="Loading"><div><svg viewBox="-42 -42 84 84" aria-hidden="true"><circle r="8.5"/><path pathLength="1" style="--k:0" transform="rotate(0)" d="M0-12C6.5-21 5.5-33 0-39C-5.5-33-6.5-21 0-12"/><path pathLength="1" style="--k:1" transform="rotate(30)" d="M0-12C6.5-21 5.5-33 0-39C-5.5-33-6.5-21 0-12"/><path pathLength="1" style="--k:2" transform="rotate(60)" d="M0-12C6.5-21 5.5-33 0-39C-5.5-33-6.5-21 0-12"/><path pathLength="1" style="--k:3" transform="rotate(90)" d="M0-12C6.5-21 5.5-33 0-39C-5.5-33-6.5-21 0-12"/><path pathLength="1" style="--k:4" transform="rotate(120)" d="M0-12C6.5-21 5.5-33 0-39C-5.5-33-6.5-21 0-12"/><path pathLength="1" style="--k:5" transform="rotate(150)" d="M0-12C6.5-21 5.5-33 0-39C-5.5-33-6.5-21 0-12"/><path pathLength="1" style="--k:6" transform="rotate(180)" d="M0-12C6.5-21 5.5-33 0-39C-5.5-33-6.5-21 0-12"/><path pathLength="1" style="--k:7" transform="rotate(210)" d="M0-12C6.5-21 5.5-33 0-39C-5.5-33-6.5-21 0-12"/><path pathLength="1" style="--k:8" transform="rotate(240)" d="M0-12C6.5-21 5.5-33 0-39C-5.5-33-6.5-21 0-12"/><path pathLength="1" style="--k:9" transform="rotate(270)" d="M0-12C6.5-21 5.5-33 0-39C-5.5-33-6.5-21 0-12"/><path pathLength="1" style="--k:10" transform="rotate(300)" d="M0-12C6.5-21 5.5-33 0-39C-5.5-33-6.5-21 0-12"/><path pathLength="1" style="--k:11" transform="rotate(330)" d="M0-12C6.5-21 5.5-33 0-39C-5.5-33-6.5-21 0-12"/></svg><p>Isha Zaheer<small>portfolio</small></p></div></div>
+<script>
+// The loader lifts once the portrait is moving (and, coming back from the gallery to #artist, once the
+// stickers are on too), after at least a moment so the flower is seen drawing; never later than 9 s.
+window.loaded = (function () {
+  var need = location.hash === "#artist" ? 2 : 1, got = {}, n = 0;
+  function done() { setTimeout(function () { document.getElementById("loader").classList.add("done"); }, Math.max(0, 1300 - performance.now())); }
+  setTimeout(done, 9000);
+  return function (part) { if (!got[part]) { got[part] = 1; if (++n >= need) done(); } };
+})();
+</script>
 <div class="hero" id="hero">
   <div class="stage" id="stage">
     <canvas id="bg"></canvas>
@@ -165,9 +187,11 @@ try {
   preparePortrait(me);
   const [cutout, hair, eyes, geometry] = await images;
   window.portrait = animatePortrait(me, cutout, hair, eyes, geometry);
+  window.loaded("portrait");
 } catch (error) {
   // The CSS cutout remains visible if WebGL is unavailable.
   console.error('Portrait animation could not start:', error);
+  window.loaded("portrait");
 }
 </script>
 <script type="module">
@@ -242,7 +266,7 @@ if (location.hash === '#artist' && tour.includes('Palette')) {
   scrollTo({ top: hero.offsetTop + (tour.indexOf('Palette') + 2) * innerHeight, behavior: 'instant' });
   qs = scrollY / innerHeight;
 }
-document.documentElement.classList.remove('arriving');
+window.loaded('stickers');
 // Going into the gallery: the screen dims to the gallery's dark opening screen first
 card.addEventListener('click', e => {
   const link = e.target.closest('a[href^="gallery/"]');

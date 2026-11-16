@@ -261,7 +261,7 @@ try{
     const dt=Math.min((time-lastTime)/1000,.06);lastTime=time;
     if(menu||selected||document.hidden)return;
     update(dt);ring.sky.update(dt);renderer.render(scene,camera);
-  });$('#loading').classList.add('done');
+  });setTimeout(()=>$('#loading').classList.add('done'),Math.max(0,1300-performance.now()));
 }catch(error){
   console.error(error);$('#loading').hidden=true;route();setMenu(true);
   notice('3D rendering is unavailable in this browser. Browse the artworks in the menu.');
