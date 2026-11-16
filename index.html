@@ -55,7 +55,9 @@
   /* the portrait and its stickers move together as the camera's subject */
   .camera { position: absolute; inset: 0; z-index: 2; transform-origin: 0 0; }
   /* a sharp copy of the sticker the camera rests on, over the face texture's soft one */
-  .focus { position: absolute; z-index: 3; pointer-events: none; opacity: 0; }
+  /* Laid out at its full drawn size and scaled down into place, on a layer of its own: Safari paints
+     a small canvas at its laid-out size and then enlarges that, which blurred these on an iPhone. */
+  .focus { position: absolute; z-index: 3; pointer-events: none; opacity: 0; transform-origin: 0 0; will-change: transform; }
   .tag, .vert { transition: opacity .3s; }
   .stage.zoomed .tag, .stage.zoomed .vert { opacity: 0; }
   .stage.zoomed .stk .tip { display: none; }
@@ -448,7 +450,10 @@ function fineness(p, L) {
     if (!stop) continue;
     if (stop === p || Math.hypot(stop.anchor[0] - p.anchor[0], stop.anchor[1] - p.anchor[1]) < 260) zoom = Math.max(zoom, shot(stop, stop.anchor, L).zoom);
   }
-  return Math.min(8, L.s0 * (zoom || 3) * (devicePixelRatio || 1));
+  // as fine as the screen can show it (a phone's screen is dense, and the camera comes in close),
+  // within what a canvas of the patch's size can reasonably hold
+  const room = Math.sqrt(2.4e6 / (p.skin.patch.width * p.skin.patch.height));
+  return Math.min(16, room, L.s0 * (zoom || 3) * (devicePixelRatio || 1));
 }
 function drawFine(p, k) {
   const began = performance.now(), art = surface.sharp(p.skin, k, lit(!!p.st.shadow));
@@ -522,8 +527,9 @@ function attachToFace(now = performance.now()) {
       sharpen(p, L);
       if (p.stale && p.fineKey && close > 0) drawFine(p, p.fineness);
       const [x, y] = at(L, [e.left + moved[i][0] - p.anchor[0], e.top + moved[i][1] - p.anchor[1]]);
-      Object.assign(p.fine.style, { left: x + 'px', top: y + 'px', width: e.patch.width * L.s0 + 'px', height: e.patch.height * L.s0 + 'px',
-        opacity: p.fineKey ? close : 0 });
+      const dense = devicePixelRatio || 1, fw = p.fine.width / dense, fh = p.fine.height / dense;
+      Object.assign(p.fine.style, { left: x + 'px', top: y + 'px', width: fw + 'px', height: fh + 'px',
+        transform: `scale(${e.patch.width * L.s0 / fw}, ${e.patch.height * L.s0 / fh})`, opacity: p.fineKey ? close : 0 });
       // and the soft one under it fades out as the sharp one comes in, so no blurred edge shows round it
       surface.opacity(e, p.fineKey ? 1 - close : 1);
     }
