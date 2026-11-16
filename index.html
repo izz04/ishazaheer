@@ -13,7 +13,7 @@
 <link rel="modulepreload" href="portrait-anim.js?v=round-iris-6">
 <link rel="modulepreload" href="stickers/sticker.js?v=skin-stickers-7">
 <link rel="modulepreload" href="stickers/baked.js?v=fast-1">
-<link rel="modulepreload" href="stickers/set.js?v=cards-7">
+<link rel="modulepreload" href="stickers/set.js?v=cards-8">
 <link rel="modulepreload" href="stickers/skin-surface.js?v=fast-1">
 <link rel="modulepreload" href="skyline.js?v=pink-1">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,6 +47,7 @@
   .card .count { margin: 0 0 6px; font-size: 12px; letter-spacing: .2em; opacity: .7; }
   .card h3 { margin: 0 0 6px; font-size: clamp(22px, 2.6vw, 32px); line-height: 1.15; }
   .card .role { margin: 0 0 12px; font-size: 15px; opacity: .85; }
+  .card ul:empty { display: none; }
   .card ul { margin: 0 0 14px; padding: 0; list-style: none; font-size: 14px; line-height: 1.5; }
   .card li { padding-left: 1.1em; text-indent: -1.1em; }
   .card li::before { content: "— "; opacity: .6; }
@@ -177,7 +178,7 @@ try {
 // sharp copy of it covers the face texture's soft one.
 import { mountPeel } from './stickers/sticker.js?v=skin-stickers-7';
 import { loadBakedSticker } from './stickers/baked.js?v=fast-1';
-import { STICKERS, TOUR, CARDS, INTRO } from './stickers/set.js?v=cards-7';
+import { STICKERS, TOUR, CARDS, INTRO } from './stickers/set.js?v=cards-8';
 import { createSkinSurface, deepShadow, shadeMap, SURFACE_RECT } from './stickers/skin-surface.js?v=fast-1';
 
 const W = 1122, H = 1402;

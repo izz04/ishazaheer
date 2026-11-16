@@ -117,8 +117,8 @@ export const CARDS = {
       'AI engineering: Gemini, Vertex AI, OpenAI API, Claude API; LLM workflow design, prompt engineering, schema-constrained outputs, hallucination controls, relevance scoring',
       'Design Tools: Adobe Illustrator, Photoshop, After Effects, Premiere Pro, PTGui'] },
   'Palette': { when: '', title: 'ARTIST',
-    role: 'Paintings, drawings and lettering',
-    points: ['Art skills: drawing, painting (acrylic and watercolor), ceramics, printmaking, digital software (Adobe Creative Cloud, Blender)'],
+    role: 'Drawing, Painting (Acrylic and Watercolor), Ceramics, Printmaking, Digital Software (Adobe Creative Cloud, Blender)',
+    points: [],
     // what the gallery is, above the way in
     about: 'My work hangs in a walkable 3D gallery. Stroll from room to room around a courtyard that follows New York’s real time and weather, and step up to any piece for a closer look.',
     // the walkable gallery (gallery/): the way in, then one chip per room
