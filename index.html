@@ -260,13 +260,13 @@ for (const [index, st] of STICKERS.entries()) {
   if (st.tip) { const tip = document.createElement('span'); tip.className = 'tip'; tip.textContent = st.tip; el.append(tip); }
   layer.append(el);
   let skin, sticker;
-  const peel = mountPeel(c, s, { still: st.still, max: .08, onDraw:()=>{ surface.invalidate(skin); if (sticker) sticker.drawn = performance.now(); } });
+  const peel = mountPeel(c, s, { still: st.still, max: .08, onDraw:()=>{ surface.invalidate(skin); if (sticker) sticker.stale = true; } });
   const heightScale=st.heightScale ?? 1;
   skin=surface.add(c,st.face,st.tilt,heightScale,st.shadow ? shadowMap : null);
   const fine = document.createElement('canvas');
   fine.className = 'focus';
   camera.insertBefore(fine, layer);
-  sticker = { st, el, peel, skin, canvas: c, aspect: s.h/s.w*heightScale, anchor: st.face.slice(0, 2), width: st.face[2], fine, fineKey: '', drawn: 0 };
+  sticker = { st, el, peel, skin, canvas: c, aspect: s.h/s.w*heightScale, anchor: st.face.slice(0, 2), width: st.face[2], fine, fineKey: '', fineness: 0, stale: false };
   placed.push(sticker);
   // a click flies the camera to the sticker; its card links on to the section
   const stop = tour.indexOf(st.label);
@@ -382,8 +382,8 @@ function showCard(k) {
 
 // Each sticker's sharp copy: its curved patch drawn finely enough for the closest the camera comes
 // to it, which is its own shot if it is a stop, or the shot of a stop beside it. Made in a spare
-// moment (not while the sticker is peeling: the copy would keep the peel) and again if the window
-// changes size; until a new one is ready the old one stays.
+// moment, and again if the window changes size; until a new one is ready the old one stays. When
+// the sticker redraws itself (it peels under the pointer), its sharp copy is redrawn with it.
 function fineness(p, L) {
   let zoom = 0;
   for (const stop of stops) {
@@ -392,17 +392,21 @@ function fineness(p, L) {
   }
   return Math.min(8, L.s0 * (zoom || 3) * (devicePixelRatio || 1));
 }
-const peeling = (p, now) => p.el.matches(':hover') || now - p.drawn < 700;
+function drawFine(p, k) {
+  const began = performance.now(), art = surface.sharp(p.skin, k, lit(!!p.st.shadow));
+  if (p.fine.width !== art.width || p.fine.height !== art.height) { p.fine.width = art.width; p.fine.height = art.height; }
+  else p.fine.getContext('2d').clearRect(0, 0, art.width, art.height);
+  p.fine.getContext('2d').drawImage(art, 0, 0);
+  p.fineness = k; p.stale = false;
+  layer.dataset.sharpMs = (performance.now() - began).toFixed(1);
+}
 function sharpen(p, L) {
   const k = fineness(p, L), key = k.toFixed(2);
   if (p.fineKey === key || p.finePending === key) return;
   p.finePending = key;
-  idle(function draw() {
+  idle(() => {
     if (p.finePending !== key) return;
-    if (peeling(p, performance.now())) return void setTimeout(() => idle(draw), 800);
-    const art = surface.sharp(p.skin, k, lit(!!p.st.shadow));
-    p.fine.width = art.width; p.fine.height = art.height;
-    p.fine.getContext('2d').drawImage(art, 0, 0);
+    drawFine(p, k);
     p.fineKey = key; p.finePending = '';
   });
 }
@@ -444,9 +448,12 @@ function attachToFace(now = performance.now()) {
     for (let i = 0; i < placed.length; i++) {
       const p = placed[i], e = p.skin;
       sharpen(p, L);
+      if (p.stale && p.fineKey && close > 0) drawFine(p, p.fineness);
       const [x, y] = at(L, [e.left + moved[i][0] - p.anchor[0], e.top + moved[i][1] - p.anchor[1]]);
       Object.assign(p.fine.style, { left: x + 'px', top: y + 'px', width: e.patch.width * L.s0 + 'px', height: e.patch.height * L.s0 + 'px',
-        opacity: p.fineKey && !peeling(p, now) ? close : 0 });
+        opacity: p.fineKey ? close : 0 });
+      // and the soft one under it fades out as the sharp one comes in, so no blurred edge shows round it
+      surface.opacity(e, p.fineKey ? 1 - close : 1);
     }
   }
   requestAnimationFrame(attachToFace);
