@@ -191,13 +191,18 @@ function cameraFollow(dt,snap=false){
   const ease=snap?1:1-Math.exp(-4.2*dt),p=position;
   cameraYaw+=turn(heading-cameraYaw)*ease;
   const fx=Math.sin(cameraYaw),fz=Math.cos(cameraYaw);
-  let back=1.2;
-  while(back<5.2&&Math.hypot(p.x-fx*(back+.25),p.z-fz*(back+.25))<R_OUT-.45)back+=.25;
+  // it never leaves the rooms: not out through the outer wall, nor into the courtyard through the glass.
+  // With her back to a wall it comes right in over her head, looking the way she looks.
+  const inside=b=>{const r=Math.hypot(p.x-fx*b,p.z-fz*b);return r<R_OUT-.45&&r>R_IN+.45};
+  let back=.25;
+  while(back<5.2&&inside(back+.25))back+=.25;
   cameraBack+=(back-cameraBack)*(snap?1:1-Math.exp(-7*dt));
   const cx=p.x-fx*cameraBack,cz=p.z-fz*cameraBack;
   // pulled in close, it rises and tips down so she stays in view
   const near=5.2-cameraBack;
-  camera.position.set(cx,3.2+near*.3,cz);camera.lookAt(p.x+fx*3.2,2.1-near*.34,p.z+fz*3.2);
+  // closer still (her back to a wall), it comes down to just over her head and looks out level, as she would
+  const over=Math.min(1,Math.max(0,(1.2-cameraBack)/.9)),held=Math.min(near,4);
+  camera.position.set(cx,3.2+held*.3-over*1.9,cz);camera.lookAt(p.x+fx*3.2,2.1-held*.34+over*1.25,p.z+fz*3.2);
   for(const w of ring.walls)w.group.visible=!crosses(cx,cz,p.x+fx*.4,p.z+fz*.4,w.angle);
 }
 const plan=$('#plan');
