@@ -166,15 +166,16 @@ export function createViewer(THREE, canvas) {
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(30, 1, .05, 20);
-    // the top of the white plinth, its faces toned as in the gallery
-    const block = new THREE.BoxGeometry(.94, 1.4, .7), normal = block.attributes.normal, tone = [];
+    // the white plinth, its faces toned as in the gallery; it is made tall enough to run down out of
+    // the picture from every angle, so it never ends in mid-air
+    const block = new THREE.BoxGeometry(.94, 16, .7), normal = block.attributes.normal, tone = [];
     for (let i = 0; i < normal.count; i++) {
       const shade = normal.getY(i) > .5 ? 1 : normal.getZ(i) > .5 ? .9 : normal.getZ(i) < -.5 ? .7 : normal.getX(i) > .5 ? .8 : .74;
       tone.push(shade, shade, shade);
     }
     block.setAttribute('color', new THREE.Float32BufferAttribute(tone, 3));
     const plinth = new THREE.Mesh(block, new THREE.MeshBasicMaterial({ color: 0xf4f3ef, vertexColors: true, toneMapped: false }));
-    plinth.position.y = -.7;
+    plinth.position.y = -8;
     scene.add(plinth);
     canvas.addEventListener('pointerdown', event => { dragging = true; from = [event.clientX, event.clientY]; canvas.setPointerCapture(event.pointerId); });
     canvas.addEventListener('pointermove', event => {
@@ -197,6 +198,8 @@ export function createViewer(THREE, canvas) {
     if (canvas.width !== Math.round(w * renderer.getPixelRatio()) || canvas.height !== Math.round(h * renderer.getPixelRatio())) {
       renderer.setSize(w, h, false);
       camera.aspect = w / h;
+      // a tall picture keeps the same width of view, so the plinth runs on down to the floor of the page
+      camera.fov = w < h ? 2 * Math.atan(Math.tan(Math.PI / 12) * h / w) * 180 / Math.PI : 30;
       camera.updateProjectionMatrix();
     }
     // it turns by itself, pausing for a moment after it has been dragged

@@ -36,3 +36,7 @@ button,a{touch-action:manipulation}
 @media(max-height:520px){#controls{left:max(3vw,env(safe-area-inset-left));transform:none;bottom:max(12px,env(safe-area-inset-bottom))}.moveLabel,#menuHint,#inspect{display:none}
   #plan{left:auto;right:max(3vw,env(safe-area-inset-right));top:15vh;bottom:auto;width:84px}#near,.touch #near{bottom:max(18px,env(safe-area-inset-bottom))}
   #top{top:3vh}#menuButton{top:1vh}#menu{padding:8vh 4vw 3vh}}
+/* the pedestal stands on the bottom of the screen: its picture runs the full height beside the artwork.
+   On a phone, where it sits in a scrolling column, it melts away at the bottom instead */
+@media(min-width:701px){#detail.with-model .model{align-self:stretch;height:auto;aspect-ratio:auto;margin:0 0 -5vh}}
+@media(max-width:700px){.model{-webkit-mask-image:linear-gradient(#000 72%,transparent 99%);mask-image:linear-gradient(#000 72%,transparent 99%)}}
