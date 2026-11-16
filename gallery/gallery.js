@@ -15,6 +15,8 @@ for(const link of document.querySelectorAll('a.portfolio')){link.href=PORTFOLIO;
 const {rooms}=await fetch('collection/index.json').then(r=>r.json());
 const works=rooms.flatMap(room=>room.works.map(work=>({...work,room})));
 const byId=new Map(works.map(w=>[w.id,w]));
+// the signs on the walls are drawn in the site's typeface, so wait a moment for it (not for long)
+await Promise.race([Promise.all(['400','600','700'].map(w=>document.fonts.load(w+' 40px "Space Grotesk"'))),new Promise(r=>setTimeout(r,1500))]).catch(()=>{});
 const scene=new T.Scene();
 const camera=new T.PerspectiveCamera(52,1,.04,85);
 const canvas=$('#scene'), pad=[...document.querySelectorAll('.pad button')];
@@ -45,17 +47,15 @@ function setMenu(open){
 }
 $('#menuButton').onclick=$('#menuHint').onclick=()=>setMenu(!menu);
 function list(){
-  const q=$('.search input').value.toLowerCase().trim();
   const links=$('#links');links.replaceChildren();
   for(const room of rooms){
-    const found=room.works.filter(w=>(w.title+' '+room.title).toLowerCase().includes(q));
-    if(!found.length)continue;
+    const found=room.works;
     const head=document.createElement('a');head.href='#room/'+room.id;head.className='room';head.textContent=room.id+' · '+room.title;links.append(head);
     for(const w of found){const a=document.createElement('a');a.href='#frame/'+w.id;a.textContent=w.title;links.append(a)}
   }
   if(!links.childElementCount)links.textContent='No matching artworks';
 }
-$('.search input').oninput=list;list();
+list();
 $('#menu').addEventListener('click',e=>{if(e.target.closest('a'))setMenu(false)});
 function go(hash){if(location.hash===hash){route();return}location.hash=hash}
 function inspect(){

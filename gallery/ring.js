@@ -101,13 +101,13 @@ function lintelSign(number, title) {
   return makeCanvas(1024, 400, (c, w, h) => {
     c.fillStyle = '#222120';
     c.textBaseline = 'middle';
-    c.font = 'bold 190px Georgia, serif';
+    c.font = '700 180px "Space Grotesk", Arial, sans-serif';
     c.fillText(number, 60, h * .5);
     const x = 60 + c.measureText(number).width + 46;
     c.fillRect(x, h * .22, 3, h * .56);
     let size = 64;
-    c.font = size + 'px Georgia, serif';
-    while (size > 30 && c.measureText(title).width > w - x - 90) c.font = --size + 'px Georgia, serif';
+    c.font = size + 'px "Space Grotesk", Arial, sans-serif';
+    while (size > 30 && c.measureText(title).width > w - x - 90) c.font = --size + 'px "Space Grotesk", Arial, sans-serif';
     c.fillText(title, x + 40, h * .5);
   });
 }
@@ -117,7 +117,7 @@ function portalSign(text) {
     c.fillStyle = '#222120';
     c.textAlign = 'center';
     c.textBaseline = 'middle';
-    c.font = 'bold 76px Arial, sans-serif';
+    c.font = '700 76px "Space Grotesk", Arial, sans-serif';
     c.fillText(text.split('').join('  '), w / 2, h / 2);
   });
 }
