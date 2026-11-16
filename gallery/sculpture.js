@@ -85,7 +85,17 @@ export function createGarden(THREE, source, stationId) {
     resting.push([position[0], position[2], length * .5]);
   }
   function stem(points) {
-    knit(stitched(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points.map(p => new THREE.Vector3(...p))), 28, .0085, 7), 1, 9), YARN.green, [0, 0, 0]);
+    knit(stitched(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points.map(p => new THREE.Vector3(...p))), 72, .0085, 7), 1, 22), YARN.green, [0, 0, 0]);
+  }
+  // a stem that comes down from its flower and then curls round the statue, lying on the slab:
+  // together the stems make a loose ring all the way round it, behind as well as in front
+  function coil(from, sweep, r, y) {
+    const centre = .035, start = Math.atan2(from[2] - centre, from[0]), points = [from], steps = Math.ceil(Math.abs(sweep) / .45);
+    for (let i = 1; i <= steps; i++) {
+      const a = start + sweep * (.12 + .88 * i / steps), wave = 1 + .04 * Math.sin(a * 3 + r * 40);
+      points.push([Math.cos(a) * r * 1.12 * wave, y, centre + Math.sin(a) * r * .86 * wave]);
+    }
+    stem(points);
   }
 
   // the two big sunflowers behind and beside the statue, leaning toward the viewer
@@ -98,16 +108,16 @@ export function createGarden(THREE, source, stationId) {
   flower([-.215, .04, .1], [-.3, .8, .5], .036, YARN.orange, YARN.white, 1.8);
   flower([.07, .045, .15], [.25, .75, .6], .04, YARN.orange, YARN.white, 1.8);
   resting.push([-.33, 0, .13], [-.21, .11, .06], [.07, .16, .07]);
-  // leaves and the stems that run out to the front
+  // leaves, and the stems that circle the statue
   leaf([-.3, .022, .2], .23, .12);
   leaf([.31, .022, .22], .22, -.35);
   leaf([.19, .075, .1], .15, 1.2, [.5, .5, .7]);
   leaf([-.15, .03, .0], .09, .9, [0, .9, .4]);
-  stem([[-.26, .02, .02], [-.2, .014, .14], [-.05, .012, .22], [.12, .012, .25]]);
-  stem([[-.19, .03, .11], [-.1, .016, .19], [.02, .014, .24], [.16, .014, .25]]);
-  stem([[.06, .03, .14], [.03, .016, .2], [.08, .012, .235], [.2, .012, .23]]);
-  stem([[.3, .06, -.01], [.34, .06, .1], [.3, .02, .2], [.16, .014, .245]]);
-  stem([[.06, .1, -.13], [.2, .03, .08], [.24, .02, .19], [.12, .016, .255]]);
+  coil([.045, .1, -.16], 5.2, .235, .012);
+  coil([.255, .07, -.03], 4.6, .25, .013);
+  coil([-.3, .03, 0], 5, .225, .014);
+  coil([-.2, .025, .1], 4.2, .242, .022);
+  coil([.07, .03, .15], 4.4, .215, .021);
 
   // the silver statue in the middle
   resting.push([0, 0, .1]);
