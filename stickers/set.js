@@ -118,7 +118,10 @@ export const CARDS = {
       'Design Tools: Adobe Illustrator, Photoshop, After Effects, Premiere Pro, PTGui'] },
   'Palette': { when: '', title: 'ARTIST',
     role: 'Paintings, drawings and lettering',
-    points: ['Art Styles:'] },
+    points: ['Art Styles:'],
+    // the walkable gallery (gallery/): one chip per room, and the way in
+    rooms: [['Seasons', '01'], ['Illuminae', '02'], ['Delineations', '03'], ['Liberty', '04'], ['WPAP', '05'], ['Lettering', '06'], ['The Copy', '07']],
+    enter: { text: 'Walk through the gallery', href: 'gallery/' } },
   'Achievements': { when: 'Scholarships', title: 'Achievements', role: 'NYU Gallatin',
     points: ['Full NYU Gallatin Scholarship Awardee', 'Gallatin Futures Scholar ($10,000/year for 4 years)',
       'Global Pathways Scholar (2025)', 'Adam Taki Scholar (2026-27)',

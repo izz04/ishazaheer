@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#dad9d6"><title>Isha Zaheer | Gallery</title><link rel="icon" href="data:,"><link rel="stylesheet" href="gallery.css"></head>
+<body>
+<main id="stage"><canvas id="scene" tabindex="0" aria-label="Walkable circular gallery of eight rooms. Left and right arrows turn, up walks forward, down turns round. Enter inspects a nearby artwork. Escape opens the menu."></canvas></main>
+<div id="loading" role="status"><div><strong>Isha Zaheer</strong><span>gallery</span></div></div>
+<button id="menuButton" aria-controls="menu" aria-expanded="false">Menu</button>
+<nav id="menu" aria-label="Gallery menu" hidden>
+<div class="nav-pages"><a href="#home">Entrance</a><a class="portfolio" href="https://izz04.github.io/ishazaheer/#artist">Portfolio</a></div>
+<div class="catalog"><div id="links"></div><label class="search"><b aria-hidden="true">⚲</b><input type="search" placeholder="Search an artwork" aria-label="Search an artwork"></label></div>
+</nav>
+<div id="controls" aria-label="Gallery controls"><span class="moveLabel">Move</span><div class="pad"><button data-key="ArrowUp" aria-label="Walk forward">↑</button><button data-key="ArrowLeft" aria-label="Turn left">←</button><button data-key="ArrowDown" aria-label="Turn round and walk">↓</button><button data-key="ArrowRight" aria-label="Turn right">→</button></div><button id="menuHint">Open/Close Menu <kbd>ESC</kbd></button><button id="inspect">See details <kbd>↵</kbd></button></div>
+<button id="near" hidden></button>
+<nav id="plan" aria-label="Gallery plan"></nav>
+<div id="top"><a id="back" class="portfolio" href="https://izz04.github.io/ishazaheer/#artist">← Portfolio</a><p id="weather" aria-label="Time and weather shown in the courtyard"></p></div>
+<section id="detail" hidden aria-label="Artwork details"><canvas class="model" hidden aria-label="The sculpture in three dimensions. Drag to turn it."></canvas><div class="exhibit"><div class="blank"></div><img hidden alt=""></div><div class="caption"><p class="where"></p><h1></h1><p class="text"></p></div><button class="prev" aria-label="Previous artwork">←</button><button class="next" aria-label="Next artwork">→</button><button class="return">← Return to room</button></section>
+<div id="fade" aria-hidden="true"></div><p id="notice" role="status" hidden></p><script type="module" src="gallery.js"></script></body></html>
