@@ -41,6 +41,10 @@
   .tag, .vert { transition: opacity .3s; }
   .stage.zoomed .tag, .stage.zoomed .vert { opacity: 0; }
   .stage.zoomed .stk .tip { display: none; }
+  /* The portrait's drop shadow is a filter, and a filtered element is painted afresh at whatever size
+     it is shown. Zoomed nine times that is far bigger than an iPhone will paint, so Safari showed no
+     face at all, only the stickers over the skyline. Close in, the shadow is out of view anyway. */
+  .stage.zoomed canvas#me { filter: none; }
 
   /* the card for the sticker in focus, like a résumé entry beside it */
   .card {
@@ -430,6 +434,19 @@ function attachToFace(now = performance.now()) {
     const face = window.portrait?.bustPoints([FACE_CENTRE])[0] ?? FACE_CENTRE;
     const shots = [wholeFace(face, L), ...stops.map(p => shot(p, moved[placed.indexOf(p)], L))];
     const { view, stop, focus: f } = cameraAt(qs, shots);
+    // Zoomed in and turned, the far corners of the portrait swing toward the viewer. If one passed the
+    // 3D viewpoint (the stage's perspective distance), Safari on iPhone would drop the whole portrait and
+    // leave only the stickers floating over the skyline. So the viewpoint backs away as far as it must
+    // to stay well clear of the nearest corner.
+    {
+      const ry = view.turnY * Math.PI / 180, rx = view.turnX * Math.PI / 180;
+      let nearest = 0;
+      for (const cx of [0, camera.offsetWidth]) for (const cy of [0, camera.offsetHeight]) {
+        const x = (cx - view.at[0]) * view.zoom, y = (cy - view.at[1]) * view.zoom;
+        nearest = Math.max(nearest, Math.abs(-x * Math.sin(ry) + y * Math.sin(rx) * Math.cos(ry)));
+      }
+      stage.style.perspective = Math.round(Math.max(1400, nearest * 1.7)) + 'px';
+    }
     camera.style.transform = `translate(${view.to[0]}px, ${view.to[1]}px) rotateY(${view.turnY}deg) rotateX(${view.turnX}deg) `
       + `scale(${view.zoom}) translate(${-view.at[0]}px, ${-view.at[1]}px)`;
     // the background drifts out of focus as the camera closes in
