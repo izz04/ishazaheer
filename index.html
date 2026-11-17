@@ -57,7 +57,7 @@
   /* a sharp copy of the sticker the camera rests on, over the face texture's soft one */
   /* Laid out at its full drawn size and scaled down into place, on a layer of its own: Safari paints
      a small canvas at its laid-out size and then enlarges that, which blurred these on an iPhone. */
-  .focus { position: absolute; z-index: 3; pointer-events: none; opacity: 0; transform-origin: 0 0; will-change: transform; }
+  .focus { position: absolute; top: 0; left: 0; z-index: 3; pointer-events: none; opacity: 0; transform-origin: 0 0; will-change: transform; }
   .tag, .vert { transition: opacity .3s; }
   .stage.zoomed .tag, .stage.zoomed .vert { opacity: 0; }
   .stage.zoomed .stk .tip { display: none; }
@@ -101,6 +101,7 @@
   .stickers { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
   .stk {
     position: absolute; display: block; pointer-events: auto; text-decoration: none;
+    top: 0; left: 0;
     transform: translate(-50%, -50%) rotate(var(--tilt));
     opacity: 0; transition: opacity .5s;
   }
@@ -405,10 +406,10 @@ function dwell(d) { return 1 - clamp((Math.abs(d) - .18) / .12); }
 // camera rests on each for a while, and after the last it pulls back out to the whole face.
 function cameraAt(q, shots) {
   const n = shots.length, u = q - 1;
-  if (u <= 0) return { view: between(rest(shots[0]), shots[0], ease(clamp((q - .15) / .7))), stop: 0, focus: dwell(u) };
-  if (u >= n - 1) return { view: between(shots[n - 1], rest(shots[n - 1]), ease(clamp((u - n + 1 - .3) / .6))), stop: n - 1, focus: dwell(u - n + 1) };
+  if (u <= 0) return { view: between(rest(shots[0]), shots[0], ease(clamp((q - .04) / .88))), stop: 0, focus: dwell(u) };
+  if (u >= n - 1) return { view: between(shots[n - 1], rest(shots[n - 1]), ease(clamp((u - n + 1 - .08) / .92))), stop: n - 1, focus: dwell(u - n + 1) };
   const k = Math.floor(u), near = Math.round(u);
-  return { view: between(shots[k], shots[k + 1], ease(clamp((u - k - .25) / .5)), .28), stop: near, focus: dwell(u - near) };
+  return { view: between(shots[k], shots[k + 1], ease(clamp((u - k - .08) / .84)), .10), stop: near, focus: dwell(u - near) };
 }
 
 // the card for shot k: 00 is About me; a sticker's is its entry in CARDS, or failing that its tip
@@ -444,7 +445,7 @@ function showCard(k) {
 // to it, which is its own shot if it is a stop, or the shot of a stop beside it. Made in a spare
 // moment, and again if the window changes size; until a new one is ready the old one stays. When
 // the sticker redraws itself (it peels under the pointer), its sharp copy is redrawn with it.
-function fineness(p, L) {
+function fineness(p, L, density) {
   let zoom = 0;
   for (const stop of stops) {
     if (!stop) continue;
@@ -453,7 +454,7 @@ function fineness(p, L) {
   // as fine as the screen can show it (a phone's screen is dense, and the camera comes in close),
   // within what a canvas of the patch's size can reasonably hold
   const room = Math.sqrt(2.4e6 / (p.skin.patch.width * p.skin.patch.height));
-  return Math.min(16, room, L.s0 * (zoom || 3) * (devicePixelRatio || 1));
+  return Math.min(16, room, L.s0 * (zoom || 3) * density);
 }
 function drawFine(p, k) {
   const began = performance.now(), art = surface.sharp(p.skin, k, lit(!!p.st.shadow));
@@ -463,9 +464,10 @@ function drawFine(p, k) {
   p.fineness = k; p.stale = false;
   layer.dataset.sharpMs = (performance.now() - began).toFixed(1);
 }
-function sharpen(p, L) {
-  const k = fineness(p, L), key = k.toFixed(2);
-  if (p.fineKey === key || p.finePending === key) return;
+function sharpen(p, L, density) {
+  const k = fineness(p, L, density), key = k.toFixed(2);
+  if (p.fineKey === key) { p.finePending = ''; return; }
+  if (p.finePending === key) return;
   p.finePending = key;
   idle(() => {
     if (p.finePending !== key) return;
@@ -474,6 +476,7 @@ function sharpen(p, L) {
   });
 }
 
+let fineLayoutKey;
 function attachToFace(now = performance.now()) {
   if(window.portrait?.setDecals && surface.dirty) {
     window.portrait.setDecals(surface.render(),SURFACE_RECT);
@@ -481,16 +484,21 @@ function attachToFace(now = performance.now()) {
   }
   const L = layout();
   const q = ready ? tourProgress() : 0;
+  const density = devicePixelRatio || 1;
   // the anchors as the bust moves them, so links, close-ups and the camera stay on the stickers
   const moved = window.portrait?.bustPoints(placed.map(s => s.anchor)) ?? placed.map(s => s.anchor);
   for (let i=0;i<placed.length;i++) {
     const s=placed[i], [x,y]=at(L, moved[i]);
-    s.el.style.left=x+'px'; s.el.style.top=y+'px'; s.el.style.width=s.width*L.s0+'px';
-    s.canvas.style.height=s.width*L.s0*s.aspect+'px';
+    s.el.style.translate = `${x}px ${y}px`;
+    if (s.layoutScale !== L.s0) {
+      s.layoutScale = L.s0;
+      s.el.style.width = s.width * L.s0 + 'px';
+      s.canvas.style.height = s.width * L.s0 * s.aspect + 'px';
+    }
   }
   if (ready) {
     const dt = Math.min(.1, (now - last) / 1000);
-    qs = reduce || Math.abs(q - qs) < 1e-4 ? q : qs + (q - qs) * (1 - Math.exp(-dt / .12));
+    qs = reduce || Math.abs(q - qs) < 1e-4 ? q : qs + (q - qs) * (1 - Math.exp(-dt / .09));
     const face = window.portrait?.bustPoints([FACE_CENTRE])[0] ?? FACE_CENTRE;
     const shots = [wholeFace(face, L), ...stops.map(p => shot(p, moved[placed.indexOf(p)], L))];
     const { view, stop, focus: f } = cameraAt(qs, shots);
@@ -501,7 +509,7 @@ function attachToFace(now = performance.now()) {
     {
       const ry = view.turnY * Math.PI / 180, rx = view.turnX * Math.PI / 180;
       let nearest = 0;
-      for (const cx of [0, camera.offsetWidth]) for (const cy of [0, camera.offsetHeight]) {
+      for (const cx of [0, L.w]) for (const cy of [0, L.h]) {
         const x = (cx - view.at[0]) * view.zoom, y = (cy - view.at[1]) * view.zoom;
         nearest = Math.max(nearest, Math.abs(-x * Math.sin(ry) + y * Math.sin(rx) * Math.cos(ry)));
       }
@@ -522,16 +530,24 @@ function attachToFace(now = performance.now()) {
     // every sticker's sharp copy sits right over it, and shows from the moment the camera starts in
     // until it is back out, so stickers stay crisp on the way between stops as well as at them
     const close = clamp((view.zoom - 1.04) / .22);
+    const nextFineLayout = `${L.w}:${L.h}:${L.s0}:${density}`;
+    if (fineLayoutKey !== nextFineLayout) {
+      fineLayoutKey = nextFineLayout;
+      for (const p of placed) sharpen(p, L, density);
+    }
+    // Small steps in the decal fade avoid rebuilding the shared texture for tiny opacity changes.
+    const decalClose = Math.round(close * 32) / 32;
     for (let i = 0; i < placed.length; i++) {
       const p = placed[i], e = p.skin;
-      sharpen(p, L);
       if (p.stale && p.fineKey && close > 0) drawFine(p, p.fineness);
       const [x, y] = at(L, [e.left + moved[i][0] - p.anchor[0], e.top + moved[i][1] - p.anchor[1]]);
-      const dense = devicePixelRatio || 1, fw = p.fine.width / dense, fh = p.fine.height / dense;
-      Object.assign(p.fine.style, { left: x + 'px', top: y + 'px', width: fw + 'px', height: fh + 'px',
-        transform: `scale(${e.patch.width * L.s0 / fw}, ${e.patch.height * L.s0 / fh})`, opacity: p.fineKey ? close : 0 });
+      const fw = p.fine.width / density, fh = p.fine.height / density;
+      const style = p.fine.style;
+      style.width = fw + 'px'; style.height = fh + 'px';
+      style.transform = `translate3d(${x}px, ${y}px, 0) scale(${e.patch.width * L.s0 / fw}, ${e.patch.height * L.s0 / fh})`;
+      style.opacity = p.fineKey ? close : 0;
       // and the soft one under it fades out as the sharp one comes in, so no blurred edge shows round it
-      surface.opacity(e, p.fineKey ? 1 - close : 1);
+      surface.opacity(e, p.fineKey ? 1 - decalClose : 1);
     }
   }
   requestAnimationFrame(attachToFace);
